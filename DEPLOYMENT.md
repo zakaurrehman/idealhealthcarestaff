@@ -58,7 +58,17 @@ NEXT_PUBLIC_SITE_URL=https://idealhealthcarestaffing.com
 ## 4. Admin Portal Access
 
 - URL: `/admin`
-- Default staging passcode: `ideal2025!` (Override in `.env.local` via `ADMIN_PASSWORD`).
+- Default local-development passcode: `ideal2025!` (disabled in production — set `ADMIN_PASSWORD`).
+- **Super Admin**: leave the email blank and enter `ADMIN_PASSWORD`.
+- **Staff Admin**: created by the Super Admin under Staff Management; sign in with email + password.
+- **Security**:
+  - Session cookies are HMAC-signed and expire after 24 hours. Set `ADMIN_SECRET_TOKEN` to a long random value
+    (e.g. `openssl rand -hex 32`). If it is not set, the signing key is derived from `ADMIN_PASSWORD`.
+    Changing either value logs everyone out.
+  - Staff passwords are stored as salted scrypt hashes. Accounts created before hashing was introduced are
+    upgraded automatically the next time that staff member signs in.
+  - Staff accounts persist only when Supabase is configured (`SUPABASE_SERVICE_ROLE_KEY`); without it they are
+    held in server memory and lost on restart.
 - Capabilities:
   - **Job Management**: Create, edit, publish, unpublish, and close jobs.
   - **Candidate Applications**: Review applicant details, download resumes, update hiring status, and export to CSV.

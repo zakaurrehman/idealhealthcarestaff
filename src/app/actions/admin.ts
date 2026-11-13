@@ -25,8 +25,32 @@ import {
   AdminRole,
   AdminSession
 } from "@/types";
+import {
+  createSessionToken,
+  verifySessionToken,
+  hashPassword,
+  isHashedPassword,
+  verifyPassword,
+  passcodeMatches,
+  toPublicStaff,
+  SESSION_MAX_AGE,
+} from "@/lib/auth";
 
 const ADMIN_COOKIE_NAME = "ihs_admin_session";
+
+async function setSessionCookie(session: AdminSession): Promise<boolean> {
+  const token = createSessionToken(session);
+  if (!token) return false;
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: SESSION_MAX_AGE,
+    path: "/",
+  });
+  return true;
+}
 const isProduction = process.env.NODE_ENV === "production";
 function cleanEnvValue(val?: string): string | undefined {
   if (!val) return undefined;
@@ -66,37 +90,21 @@ const SUPER_ADMIN_PERMISSIONS: StaffPermissions = {
 
 export async function getAdminSession(): Promise<AdminSession | null> {
   const cookieStore = await cookies();
-  const session = cookieStore.get(ADMIN_COOKIE_NAME);
-  if (!session || !session.value) return null;
+  const cookie = cookieStore.get(ADMIN_COOKIE_NAME);
 
-  if (session.value === "authenticated") {
-    return {
-      role: "super_admin",
-      name: "Super Administrator",
-      email: "admin@idealhealthcarestaffing.com",
-      permissions: SUPER_ADMIN_PERMISSIONS,
-    };
+  // Only cryptographically signed, unexpired sessions are accepted.
+  const session = verifySessionToken(cookie?.value);
+  if (!session) return null;
+
+  if (session.role === "super_admin") {
+    return { ...session, permissions: SUPER_ADMIN_PERMISSIONS };
   }
 
-  try {
-    const parsed = JSON.parse(decodeURIComponent(session.value));
-    if (parsed && (parsed.role === "super_admin" || parsed.role === "staff_admin")) {
-      if (parsed.role === "staff_admin" && parsed.staffId) {
-        const liveStaff = await getStaffUserById(parsed.staffId);
-        if (!liveStaff || !liveStaff.isActive) {
-          // Immediately invalidate session if deactivated or deleted
-          return null;
-        }
-        // Keep permissions synced with live record
-        parsed.permissions = liveStaff.permissions;
-      }
-      return parsed;
-    }
-  } catch (e) {
-    // Invalid or corrupted session
-  }
-
-  return null;
+  // Staff sessions are re-checked against the live record on every request.
+  if (!session.staffId) return null;
+  const liveStaff = await getStaffUserById(session.staffId);
+  if (!liveStaff || !liveStaff.isActive) return null;
+  return { ...session, role: liveStaff.role, permissions: liveStaff.permissions };
 }
 
 export async function checkAdminAuth(): Promise<boolean> {
@@ -148,7 +156,7 @@ export async function adminLogin(
       };
     }
 
-    if (cleanPass === expectedPassword) {
+    if (passcodeMatches(cleanPass, expectedPassword)) {
       const superSession: AdminSession = {
         role: "super_admin",
         name: "Super Administrator",
@@ -156,15 +164,9 @@ export async function adminLogin(
         permissions: SUPER_ADMIN_PERMISSIONS,
       };
 
-      const cookieStore = await cookies();
-      cookieStore.set(ADMIN_COOKIE_NAME, encodeURIComponent(JSON.stringify(superSession)), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24, // 24 hours
-        path: "/",
-      });
-
+      if (!(await setSessionCookie(superSession))) {
+        return { success: false, error: "Session signing is not configured. Set ADMIN_SECRET_TOKEN on the server." };
+      }
       return { success: true, session: superSession };
     }
     if (!cleanEmail) {
@@ -183,8 +185,14 @@ export async function adminLogin(
       return { success: false, error: "This staff account has been deactivated by Super Admin." };
     }
 
-    if (staffUser.password && staffUser.password !== cleanPass) {
+    // An account with no stored password can never be logged into.
+    if (!verifyPassword(cleanPass, staffUser.password)) {
       return { success: false, error: "Incorrect password for this staff account." };
+    }
+
+    // Transparently upgrade legacy plain-text passwords to a hash.
+    if (!isHashedPassword(staffUser.password)) {
+      await updateStaffUser(staffUser.id, { password: hashPassword(cleanPass) });
     }
 
     const staffSession: AdminSession = {
@@ -195,15 +203,9 @@ export async function adminLogin(
       permissions: staffUser.permissions,
     };
 
-    const cookieStore = await cookies();
-    cookieStore.set(ADMIN_COOKIE_NAME, encodeURIComponent(JSON.stringify(staffSession)), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: "/",
-    });
-
+    if (!(await setSessionCookie(staffSession))) {
+      return { success: false, error: "Session signing is not configured. Set ADMIN_SECRET_TOKEN on the server." };
+    }
     return { success: true, session: staffSession };
   }
 
@@ -404,7 +406,7 @@ export async function adminGetStaffUsers(): Promise<{ success: boolean; staff?: 
   }
 
   const staff = await getStaffUsers();
-  return { success: true, staff };
+  return { success: true, staff: staff.map(toPublicStaff) };
 }
 
 export async function adminCreateStaffUser(data: {
@@ -443,12 +445,12 @@ export async function adminCreateStaffUser(data: {
     const newStaff = await createStaffUser({
       name,
       email,
-      password: cleanPassword,
+      password: hashPassword(cleanPassword),
       role: "staff_admin",
       isActive: true,
       permissions: data.permissions,
     });
-    return { success: true, staff: newStaff };
+    return { success: true, staff: toPublicStaff(newStaff) };
   } catch (e: any) {
     return { success: false, error: e?.message || "Failed to create staff account." };
   }
@@ -465,7 +467,7 @@ export async function adminUpdateStaffPermissions(
 
   const updated = await updateStaffUser(id, { permissions });
   if (!updated) return { success: false, error: "Staff account not found." };
-  return { success: true, staff: updated };
+  return { success: true, staff: toPublicStaff(updated) };
 }
 
 export async function adminToggleStaffActive(
@@ -479,7 +481,7 @@ export async function adminToggleStaffActive(
 
   const updated = await updateStaffUser(id, { isActive });
   if (!updated) return { success: false, error: "Staff account not found." };
-  return { success: true, staff: updated };
+  return { success: true, staff: toPublicStaff(updated) };
 }
 
 export async function adminResetStaffPassword(
@@ -500,7 +502,7 @@ export async function adminResetStaffPassword(
     return { success: false, error: "Default testing passwords ('staff2025!', 'ideal2025!') cannot be assigned in production." };
   }
 
-  const updated = await updateStaffUser(id, { password: cleanPass });
+  const updated = await updateStaffUser(id, { password: hashPassword(cleanPass) });
   if (!updated) return { success: false, error: "Staff account not found." };
   return { success: true };
 }

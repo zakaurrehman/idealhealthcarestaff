@@ -3,6 +3,7 @@ import { getAdminSession } from "@/app/actions/admin";
 import { getAllJobsAdmin, getApplications, getFacilityInquiries, getDataLayerStatus, getStaffUsers } from "@/lib/db";
 import AdminDashboardClient from "./AdminDashboardClient";
 import AdminLoginForm from "./AdminLoginForm";
+import { toPublicStaff } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Staffing Operations & Admin Portal | Ideal Healthcare Staffing",
@@ -26,7 +27,7 @@ export default async function AdminPage() {
     getApplications(),
     getFacilityInquiries(),
     getDataLayerStatus(),
-    session.role === "super_admin" ? getStaffUsers() : Promise.resolve([]),
+    session.role === "super_admin" ? getStaffUsers().then((s) => s.map(toPublicStaff)) : Promise.resolve([]),
   ]);
 
   return (
