@@ -1,10 +1,8 @@
 export default function Loading() {
   return (
-    <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4">
-      <div className="w-10 h-10 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
-      <p className="text-xs font-semibold tracking-wider uppercase text-slate-500">
-        Loading Clinical Content...
-      </p>
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4" role="status" aria-live="polite">
+      <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-line border-t-brand-bright" />
+      <p className="text-sm font-medium text-ink-3">Loading…</p>
     </div>
   );
 }

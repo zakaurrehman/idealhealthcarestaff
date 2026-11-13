@@ -2,20 +2,21 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getJobBySlug, getJobs } from "@/lib/db";
-import { 
-  MapPin, 
-  Clock, 
-  DollarSign, 
-  Briefcase, 
-  ShieldCheck, 
-  ArrowRight, 
-  CheckCircle2, 
-  Building2, 
-  Calendar,
-  Sparkles,
-  PhoneCall
+import {
+  ArrowRight,
+  Briefcase,
+  Building2,
+  CalendarDays,
+  Check,
+  ChevronRight,
+  Clock,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
 import JobCard from "@/components/JobCard";
+import { Reveal } from "@/components/motion/Reveal";
 import { COMPANY_INFO } from "@/lib/constants";
 
 interface JobDetailPageProps {
@@ -44,6 +45,24 @@ export async function generateMetadata(props: JobDetailPageProps): Promise<Metad
 
 export const revalidate = 60;
 
+function DetailList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <section className="border-t border-line pt-8">
+      <h2 className="font-display text-xl font-bold text-ink">{title}</h2>
+      <ul className="mt-5 space-y-3.5">
+        {items.map((item, idx) => (
+          <li key={idx} className="flex gap-3 leading-relaxed text-ink-2">
+            <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-ink">
+              <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
+            </span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export default async function JobDetailPage(props: JobDetailPageProps) {
   const { slug } = await props.params;
   const job = await getJobBySlug(slug);
@@ -57,229 +76,187 @@ export default async function JobDetailPage(props: JobDetailPageProps) {
     .filter((j) => j.id !== job.id && (j.department === job.department || j.locationState === job.locationState))
     .slice(0, 2);
 
+  const specs = [
+    { icon: MapPin, label: "Location", value: `${job.locationCity}, ${job.locationState}` },
+    { icon: Briefcase, label: "Contract type", value: job.employmentType },
+    { icon: Clock, label: "Shift schedule", value: job.shift },
+    { icon: CalendarDays, label: "Duration", value: job.durationWeeks ? `${job.durationWeeks} weeks` : "Contract" },
+  ];
+
+  const jobPostingJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.description,
+    datePosted: job.createdAt,
+    employmentType: job.employmentType,
+    hiringOrganization: { "@type": "Organization", name: COMPANY_INFO.name, sameAs: COMPANY_INFO.website },
+    jobLocation: {
+      "@type": "Place",
+      address: { "@type": "PostalAddress", addressLocality: job.locationCity, addressRegion: job.locationState, addressCountry: "US" },
+    },
+  };
+
   return (
-    <div className="bg-[#FBFBFA] dark:bg-[#070E1A] min-h-screen py-10 sm:py-14 transition-colors duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Breadcrumb Navigation */}
-        <nav className="text-xs text-slate-500 dark:text-slate-400 mb-6 flex items-center gap-1.5 flex-wrap">
-          <Link href="/" className="hover:text-navy-950 dark:hover:text-white transition-colors">Home</Link>
-          <span>/</span>
-          <Link href="/jobs" className="hover:text-navy-950 dark:hover:text-white transition-colors">Healthcare Jobs</Link>
-          <span>/</span>
-          <span className="text-green-700 dark:text-green-400 font-bold truncate max-w-xs">{job.title}</span>
-        </nav>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingJsonLd) }}
+      />
 
-        {/* Main Job Detail Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Left Column: Full Content */}
-          <div className="lg:col-span-8 space-y-8">
-            
-            {/* Header Card */}
-            <div className="bg-white dark:bg-dark-surface border border-slate-200/90 dark:border-dark-border rounded-2xl p-6 sm:p-8 shadow-sm">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-navy-50 dark:bg-dark-card text-navy-900 dark:text-sky-300 border border-navy-200/80 dark:border-dark-border">
-                  {job.department}
+      {/* Header */}
+      <section className="border-b border-line bg-surface">
+        <div className="container-page pb-10 pt-8 sm:pb-12 sm:pt-10">
+          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-ink-3">
+            <Link href="/" className="hover:text-ink">
+              Home
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+            <Link href="/jobs" className="hover:text-ink">
+              Healthcare jobs
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+            <span aria-current="page" className="max-w-[16rem] truncate font-medium text-ink">
+              {job.title}
+            </span>
+          </nav>
+
+          <div className="rise mt-7 flex flex-wrap items-center gap-2">
+            <span className="badge-navy">{job.department}</span>
+            <span className="badge-neutral">{job.specialty}</span>
+            {job.isUrgent && (
+              <span className="badge-urgent">
+                <Zap className="h-3.5 w-3.5" aria-hidden />
+                Priority opening
+              </span>
+            )}
+          </div>
+
+          <h1
+            className="rise mt-5 max-w-4xl font-display text-display font-bold text-ink"
+            style={{ "--delay": "0.08s" } as React.CSSProperties}
+          >
+            {job.title}
+          </h1>
+
+          <dl
+            className="rise mt-8 grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4"
+            style={{ "--delay": "0.16s" } as React.CSSProperties}
+          >
+            {specs.map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-ink-3">
+                  <Icon className="h-[18px] w-[18px]" aria-hidden />
                 </span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/60">
-                  {job.specialty}
-                </span>
-                {job.isUrgent && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 animate-pulse">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                    Priority Opening
-                  </span>
-                )}
-              </div>
-
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-navy-950 dark:text-white tracking-tight font-display">
-                {job.title}
-              </h1>
-
-              {/* Quick Specs Grid */}
-              <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-100 dark:border-dark-border text-xs">
-                <div>
-                  <span className="text-slate-400 dark:text-slate-400 block uppercase tracking-wider font-bold text-[10px]">Location</span>
-                  <span className="font-bold text-navy-950 dark:text-white flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-green-600 dark:text-green-400 shrink-0" />
-                    <span className="truncate">{job.locationCity}, {job.locationState}</span>
-                  </span>
-                </div>
-
-                <div>
-                  <span className="text-slate-400 dark:text-slate-400 block uppercase tracking-wider font-bold text-[10px]">Contract Type</span>
-                  <span className="font-bold text-navy-950 dark:text-white mt-0.5 block truncate">{job.employmentType}</span>
-                </div>
-
-                <div>
-                  <span className="text-slate-400 dark:text-slate-400 block uppercase tracking-wider font-bold text-[10px]">Shift Schedule</span>
-                  <span className="font-bold text-navy-950 dark:text-white mt-0.5 block truncate">{job.shift}</span>
-                </div>
-
-                <div>
-                  <span className="text-slate-400 dark:text-slate-400 block uppercase tracking-wider font-bold text-[10px]">Duration</span>
-                  <span className="font-bold text-navy-950 dark:text-white mt-0.5 block truncate">
-                    {job.durationWeeks ? `${job.durationWeeks} Weeks` : "Contract"}
-                  </span>
+                <div className="min-w-0">
+                  <dt className="text-xs font-medium uppercase tracking-wider text-ink-3">{label}</dt>
+                  <dd className="mt-0.5 font-medium text-ink">{value}</dd>
                 </div>
               </div>
+            ))}
+          </dl>
+        </div>
+      </section>
 
-              {/* Compensation Highlights */}
-              {job.payRange && (
-                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-dark-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <span className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold block">
-                      Estimated Weekly Compensation
-                    </span>
-                    <span className="text-2xl sm:text-3xl font-black text-navy-950 dark:text-white font-sans tracking-tight">
-                      {job.payRange}
-                    </span>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      Includes taxable hourly base wage plus non-taxed housing & meals stipends for eligible travelers.
-                    </p>
-                  </div>
+      <div className="container-page grid items-start gap-10 py-12 lg:grid-cols-12 lg:gap-14 lg:py-16">
+        {/* Main content */}
+        <div className="space-y-8 lg:col-span-8">
+          <Reveal>
+            <h2 className="font-display text-xl font-bold text-ink">Role overview</h2>
+            <p className="mt-4 max-w-prose text-lead text-ink-2">{job.description}</p>
+          </Reveal>
 
-                  <Link
-                    href={`/apply/${job.id}`}
-                    className="btn-accent px-8 py-3 text-sm font-bold shrink-0 text-center shadow-md"
-                  >
-                    Apply For Position
-                  </Link>
-                </div>
-              )}
-            </div>
+          {job.responsibilities && job.responsibilities.length > 0 && (
+            <Reveal>
+              <DetailList title="Key clinical responsibilities" items={job.responsibilities} />
+            </Reveal>
+          )}
+          {job.qualifications && job.qualifications.length > 0 && (
+            <Reveal>
+              <DetailList title="Qualifications & licensure" items={job.qualifications} />
+            </Reveal>
+          )}
+          {job.benefits && job.benefits.length > 0 && (
+            <Reveal>
+              <DetailList title="Comprehensive traveler benefits" items={job.benefits} />
+            </Reveal>
+          )}
+        </div>
 
-            {/* Position Overview & Description */}
-            <div className="bg-white dark:bg-dark-surface border border-slate-200/90 dark:border-dark-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
-              <div>
-                <h2 className="text-lg font-bold text-navy-950 dark:text-white mb-3 border-b border-slate-100 dark:border-dark-border pb-2 font-display">
-                  Role Overview
-                </h2>
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                  {job.description}
+        {/* Sticky application panel */}
+        <aside className="lg:sticky lg:top-28 lg:col-span-4">
+          <div className="rounded-[1.75rem] border border-line bg-surface p-6 shadow-soft sm:p-7">
+            {job.payRange && (
+              <div className="border-b border-line pb-6">
+                <p className="text-xs font-medium uppercase tracking-wider text-ink-3">Estimated compensation</p>
+                <p className="mt-1.5 font-display text-[1.75rem] font-extrabold leading-tight tracking-tight text-ink">{job.payRange}</p>
+                <p className="mt-2 text-sm leading-relaxed text-ink-3">
+                  Includes taxable hourly base wage plus non-taxed housing &amp; meals stipends for eligible travelers.
                 </p>
-              </div>
-
-              {/* Key Responsibilities */}
-              {job.responsibilities && job.responsibilities.length > 0 && (
-                <div>
-                  <h3 className="text-base font-bold text-navy-950 dark:text-white mb-3 font-display">
-                    Key Clinical Responsibilities
-                  </h3>
-                  <ul className="space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
-                    {job.responsibilities.map((resp, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5">
-                        <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
-                        <span>{resp}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Qualifications & Licensure */}
-              {job.qualifications && job.qualifications.length > 0 && (
-                <div>
-                  <h3 className="text-base font-bold text-navy-950 dark:text-white mb-3 font-display">
-                    Qualifications & Licensure Requirements
-                  </h3>
-                  <ul className="space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
-                    {job.qualifications.map((qual, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5">
-                        <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
-                        <span>{qual}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Comprehensive Benefits */}
-              {job.benefits && job.benefits.length > 0 && (
-                <div>
-                  <h3 className="text-base font-bold text-navy-950 dark:text-white mb-3 font-display">
-                    Comprehensive Traveler Benefits
-                  </h3>
-                  <ul className="space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
-                    {job.benefits.map((ben, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5">
-                        <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
-                        <span>{ben}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Related Opportunities */}
-            {relatedJobs.length > 0 && (
-              <div className="pt-4">
-                <h3 className="text-lg font-bold text-navy-950 dark:text-white mb-4 font-display">
-                  Similar Clinical Positions
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {relatedJobs.map((rj) => (
-                    <JobCard key={rj.id} job={rj} />
-                  ))}
-                </div>
               </div>
             )}
 
-          </div>
-
-          {/* Right Column: Sticky Application Box & Recruiter Contact */}
-          <div className="lg:col-span-4 space-y-6">
-            
-            {/* Quick Action Card */}
-            <div className="bg-white dark:bg-dark-surface border border-slate-200/90 dark:border-dark-border rounded-2xl p-6 shadow-sm sticky top-28">
-              <span className="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider block mb-1">
-                Fast-Track Application
-              </span>
-              <h3 className="text-xl font-bold text-navy-950 dark:text-white mb-2 font-display">
-                Interested in this opening?
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                Submit your profile in under 2 minutes. A clinical recruitment specialist will review your credentials and discuss immediate unit placement.
+            <div className={job.payRange ? "pt-6" : ""}>
+              <h2 className="font-display text-lg font-bold text-ink">Interested in this opening?</h2>
+              <p className="mt-2 text-sm leading-relaxed text-ink-3">
+                Submit your profile in under 2 minutes. A clinical recruitment specialist will review your
+                credentials and discuss placement.
               </p>
-
-              <Link
-                href={`/apply/${job.id}`}
-                className="btn-accent w-full text-center py-3 text-sm font-bold block mb-3 shadow-md"
-              >
-                Apply for this Position
-              </Link>
-
-              <a
-                href={COMPANY_INFO.phoneHref}
-                className="btn-secondary w-full text-center py-2.5 text-xs font-bold block dark:bg-dark-card dark:border-dark-border dark:text-white hover:text-green-700 dark:hover:text-green-400"
-              >
-                <PhoneCall className="w-3.5 h-3.5 text-green-600 dark:text-green-400 inline-block mr-1.5" />
-                Call {COMPANY_INFO.phone}
-              </a>
-
-              <div className="mt-6 pt-5 border-t border-slate-100 dark:border-dark-border space-y-3 text-xs text-slate-500 dark:text-slate-400">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />
-                  <span>Primary source credentialing support</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />
-                  <span>Direct deposit weekly payroll</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />
-                  <span>Direct hospital system agreement</span>
-                </div>
+              <div className="mt-6 grid gap-3">
+                <Link href={`/apply/${job.id}`} className="btn-accent btn-lg group">
+                  Apply for this position
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <a href={COMPANY_INFO.phoneHref} className="btn-secondary">
+                  <Phone className="h-4 w-4 text-brand-ink" aria-hidden />
+                  Call {COMPANY_INFO.phone}
+                </a>
               </div>
             </div>
 
+            <ul className="mt-6 space-y-3 border-t border-line pt-6 text-sm text-ink-2">
+              <li className="flex items-center gap-2.5">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-brand-ink" aria-hidden />
+                Primary-source credentialing support
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Clock className="h-4 w-4 shrink-0 text-brand-ink" aria-hidden />
+                Direct deposit weekly payroll
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Building2 className="h-4 w-4 shrink-0 text-brand-ink" aria-hidden />
+                Direct hospital system agreement
+              </li>
+            </ul>
           </div>
-
-        </div>
-
+        </aside>
       </div>
-    </div>
+
+      {relatedJobs.length > 0 && (
+        <section className="border-t border-line bg-surface">
+          <div className="container-page py-16">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h2 className="font-display text-title font-bold text-ink">Similar clinical positions</h2>
+              <Link href="/jobs" className="link-arrow group text-sm">
+                All jobs
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+            <div className="mt-8 grid gap-6 md:grid-cols-2">
+              {relatedJobs.map((rj) => (
+                <JobCard key={rj.id} job={rj} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Mobile sticky apply bar */}
+      <div className="sticky bottom-0 z-40 border-t border-line bg-surface/95 p-3 backdrop-blur lg:hidden">
+        <Link href={`/apply/${job.id}`} className="btn-accent w-full">
+          Apply for this position
+        </Link>
+      </div>
+    </>
   );
 }

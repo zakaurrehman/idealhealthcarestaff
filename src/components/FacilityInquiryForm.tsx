@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { handleFacilityInquirySubmit } from "@/app/actions/facility";
 import { US_STATES, FACILITY_TYPES, STAFFING_NEED_CATEGORIES } from "@/lib/constants";
-import { CheckCircle2, AlertCircle, Building2, Send, ShieldAlert } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, Lock, Send } from "lucide-react";
 
 export default function FacilityInquiryForm() {
   const [submitting, setSubmitting] = useState(false);
@@ -31,26 +31,18 @@ export default function FacilityInquiryForm() {
 
   if (successData) {
     return (
-      <div className="bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800/60 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm">
-        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-6 h-6" />
+      <div role="status" className="rounded-[1.75rem] border border-line bg-surface p-8 text-center shadow-soft sm:p-12">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand-ink">
+          <CheckCircle2 className="h-7 w-7" aria-hidden />
         </div>
-        <h3 className="text-xl font-bold text-navy-950 dark:text-white mb-2 font-display">
-          Staffing Inquiry Received
-        </h3>
-        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-          {successData.message}
+        <h3 className="mt-5 font-display text-2xl font-bold text-ink">Staffing inquiry received</h3>
+        <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink-2">{successData.message}</p>
+        <p className="mt-6 inline-block rounded-xl bg-surface-2 px-4 py-2.5 font-mono text-sm text-ink-2">
+          Reference: <span className="font-semibold text-ink">{successData.id}</span>
         </p>
-        <div className="inline-block bg-white dark:bg-dark-card px-4 py-2 rounded-xl border border-green-200 dark:border-dark-border text-xs font-mono text-slate-700 dark:text-slate-300 mb-6">
-          Reference File: <span className="font-semibold text-navy-950 dark:text-white">{successData.id}</span>
-        </div>
-        <div>
-          <button
-            type="button"
-            onClick={() => setSuccessData(null)}
-            className="btn-primary text-sm px-6 py-2.5"
-          >
-            Submit Another Request
+        <div className="mt-8">
+          <button type="button" onClick={() => setSuccessData(null)} className="btn-secondary">
+            Submit another request
           </button>
         </div>
       </div>
@@ -58,119 +50,124 @@ export default function FacilityInquiryForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="bg-white dark:bg-dark-surface border border-slate-200/90 dark:border-dark-border rounded-3xl p-6 sm:p-10 shadow-xl transition-colors">
-      <div className="border-b border-slate-100 dark:border-dark-border pb-6 mb-8">
-        <h3 className="text-2xl font-black text-navy-950 dark:text-white flex items-center gap-2.5 tracking-tight font-display">
-          <Building2 className="w-6 h-6 text-green-600 dark:text-green-400" />
-          Request Staffing Support
-        </h3>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
-          Complete this form to submit your staffing requirements to our clinical recruitment coordinators. We provide verified candidates within 24 to 48 hours for emergency surge needs.
+    <form
+      onSubmit={onSubmit}
+      className="rounded-[1.75rem] border border-line bg-surface p-6 shadow-soft sm:p-10"
+      aria-describedby="facility-form-intro"
+    >
+      <div className="border-b border-line pb-6">
+        <h3 className="font-display text-2xl font-bold text-ink">Request staffing support</h3>
+        <p id="facility-form-intro" className="mt-2 text-[0.9375rem] leading-relaxed text-ink-3">
+          Submit your staffing requirements to our clinical recruitment coordinators. We provide verified
+          candidates within 24 to 48 hours for emergency surge needs. Fields marked * are required.
         </p>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-300 text-sm flex items-start gap-2.5">
-          <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+        <div
+          role="alert"
+          className="mt-6 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 dark:border-rose-400/25 dark:bg-rose-400/10 dark:text-rose-200"
+        >
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
           <span>{errorMsg}</span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        {/* Facility Name */}
+      <div className="mt-8 grid gap-5 sm:grid-cols-2 sm:gap-6">
         <div className="sm:col-span-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Healthcare Facility / System Name *
+          <label htmlFor="fi-facility" className="field-label">
+            Healthcare facility / system name *
           </label>
           <input
+            id="fi-facility"
             required
             type="text"
             name="facilityName"
+            autoComplete="organization"
             placeholder="e.g. St. Jude Regional Medical Center"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50/50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="field-input"
           />
         </div>
 
-        {/* Contact Name */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Contact Name *
+          <label htmlFor="fi-contact" className="field-label">
+            Contact name *
           </label>
           <input
+            id="fi-contact"
             required
             type="text"
             name="contactName"
+            autoComplete="name"
             placeholder="e.g. Robert Miller"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50/50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="field-input"
           />
         </div>
 
-        {/* Title */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Title / Department
+          <label htmlFor="fi-title" className="field-label">
+            Title / department
           </label>
           <input
+            id="fi-title"
             type="text"
             name="contactTitle"
-            placeholder="e.g. Chief Nursing Officer / Staffing Specialist"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50/50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            autoComplete="organization-title"
+            placeholder="e.g. Chief Nursing Officer"
+            className="field-input"
           />
         </div>
 
-        {/* Work Email */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Business Email *
+          <label htmlFor="fi-email" className="field-label">
+            Business email *
           </label>
           <input
+            id="fi-email"
             required
             type="email"
             name="email"
+            autoComplete="email"
             placeholder="name@hospital.org"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50/50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="field-input"
           />
         </div>
 
-        {/* Phone */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Direct Telephone Number *
+          <label htmlFor="fi-phone" className="field-label">
+            Direct telephone *
           </label>
           <input
+            id="fi-phone"
             required
             type="tel"
             name="phone"
+            autoComplete="tel"
             placeholder="(555) 000-0000"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50/50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="field-input"
           />
         </div>
 
-        {/* City */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+          <label htmlFor="fi-city" className="field-label">
             City *
           </label>
           <input
+            id="fi-city"
             required
             type="text"
             name="city"
+            autoComplete="address-level2"
             placeholder="e.g. Houston"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50/50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="field-input"
           />
         </div>
 
-        {/* State */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+          <label htmlFor="fi-state" className="field-label">
             State *
           </label>
-          <select
-            required
-            name="state"
-            defaultValue="TX"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
+          <select id="fi-state" required name="state" defaultValue="TX" className="field-input">
             {US_STATES.map((s) => (
               <option key={s.code} value={s.code}>
                 {s.name} ({s.code})
@@ -179,17 +176,11 @@ export default function FacilityInquiryForm() {
           </select>
         </div>
 
-        {/* Facility Type */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Facility Type *
+          <label htmlFor="fi-type" className="field-label">
+            Facility type *
           </label>
-          <select
-            required
-            name="facilityType"
-            defaultValue="Acute Care Hospital"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
+          <select id="fi-type" required name="facilityType" defaultValue="Acute Care Hospital" className="field-input">
             {FACILITY_TYPES.map((t) => (
               <option key={t} value={t}>
                 {t}
@@ -198,16 +189,16 @@ export default function FacilityInquiryForm() {
           </select>
         </div>
 
-        {/* Staffing Needs */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Primary Staffing Solution *
+          <label htmlFor="fi-needs" className="field-label">
+            Primary staffing solution *
           </label>
           <select
+            id="fi-needs"
             required
             name="staffingNeeds"
             defaultValue={STAFFING_NEED_CATEGORIES[0]}
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="field-input"
           >
             {STAFFING_NEED_CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -217,53 +208,46 @@ export default function FacilityInquiryForm() {
           </select>
         </div>
 
-        {/* Start Timeline / Urgency */}
         <div className="sm:col-span-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Start Timeline / Coverage Urgency
+          <label htmlFor="fi-urgency" className="field-label">
+            Start timeline / coverage urgency
           </label>
-          <select
-            name="urgency"
-            defaultValue="Standard (2-4 Weeks)"
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
+          <select id="fi-urgency" name="urgency" defaultValue="Standard (2-4 Weeks)" className="field-input">
             <option value="Immediate / Crisis (24-48 hrs)">Immediate / Crisis Need (24 - 48 Hours)</option>
             <option value="Standard (2-4 Weeks)">Standard Assignment Start (2 - 4 Weeks)</option>
             <option value="Future Seasonal / Planned Expansion">Future Seasonal / Planned Unit Opening</option>
           </select>
         </div>
 
-        {/* Details / Shift Specifications */}
         <div className="sm:col-span-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-            Staffing Requirements & Unit Specifications
+          <label htmlFor="fi-details" className="field-label">
+            Staffing requirements &amp; unit specifications
           </label>
           <textarea
+            id="fi-details"
             rows={4}
             name="details"
-            placeholder="Please detail required specialties (e.g. 4 ICU Night Shift RNs, 2 Cath Lab Techs), EMR requirements (Epic, Cerner), patient ratio targets, or specific onboarding requirements..."
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50/50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            placeholder="e.g. 4 ICU night-shift RNs, 2 Cath Lab techs, Epic or Cerner experience, ratio targets, onboarding requirements…"
+            className="field-input resize-y"
           />
         </div>
       </div>
 
-      <div className="mt-8 pt-5 border-t border-slate-100 dark:border-dark-border flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-          <ShieldAlert className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />
-          <span>All inquiries are handled under non-disclosure confidentiality.</span>
+      <div className="mt-8 flex flex-col-reverse items-stretch justify-between gap-4 border-t border-line pt-6 sm:flex-row sm:items-center">
+        <p className="flex items-center gap-2 text-sm text-ink-3">
+          <Lock className="h-4 w-4 shrink-0" aria-hidden />
+          Handled under non-disclosure confidentiality.
         </p>
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="btn-accent px-8 py-3 text-sm font-bold w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl"
-        >
+        <button type="submit" disabled={submitting} className="btn-accent btn-lg">
           {submitting ? (
-            <span>Transmitting Request...</span>
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              Sending request…
+            </>
           ) : (
             <>
-              <span>Submit Staffing Order</span>
-              <Send className="w-4 h-4" />
+              Submit staffing order
+              <Send className="h-4 w-4" aria-hidden />
             </>
           )}
         </button>

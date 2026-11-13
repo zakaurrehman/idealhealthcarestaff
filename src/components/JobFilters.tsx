@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, Filter, X, RotateCcw, SlidersHorizontal, Check } from "lucide-react";
+import { RotateCcw, Search, SlidersHorizontal, X } from "lucide-react";
 import { US_STATES, DEPARTMENTS, SPECIALTIES, EMPLOYMENT_TYPES } from "@/lib/constants";
 
 export default function JobFilters() {
@@ -42,7 +42,7 @@ export default function JobFilters() {
     if (currentEmp && currentEmp !== "all") params.set("employmentType", currentEmp);
     if (currentSort && currentSort !== "newest") params.set("sortBy", currentSort);
 
-    router.push(`/jobs?${params.toString()}`);
+    router.push(`/jobs?${params.toString()}`, { scroll: false });
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -62,7 +62,7 @@ export default function JobFilters() {
     setState("all");
     setEmploymentType("all");
     setSortBy("newest");
-    router.push("/jobs");
+    router.push("/jobs", { scroll: false });
   };
 
   const removeFilter = (key: "search" | "department" | "specialty" | "state" | "employmentType") => {
@@ -86,43 +86,45 @@ export default function JobFilters() {
 
   const hasActiveFilters = Boolean(
     search.trim() ||
-    (department && department !== "all") ||
-    (specialty && specialty !== "all") ||
-    (state && state !== "all") ||
-    (employmentType && employmentType !== "all") ||
-    (sortBy && sortBy !== "newest")
+      (department && department !== "all") ||
+      (specialty && specialty !== "all") ||
+      (state && state !== "all") ||
+      (employmentType && employmentType !== "all") ||
+      (sortBy && sortBy !== "newest")
   );
 
+  const activeChips: { key: "search" | "department" | "specialty" | "state" | "employmentType"; label: string }[] = [];
+  if (search.trim()) activeChips.push({ key: "search", label: `“${search.trim()}”` });
+  if (department !== "all") activeChips.push({ key: "department", label: department });
+  if (specialty !== "all") activeChips.push({ key: "specialty", label: specialty });
+  if (state !== "all") activeChips.push({ key: "state", label: `State: ${state}` });
+  if (employmentType !== "all") activeChips.push({ key: "employmentType", label: employmentType });
+
+  const tabClass = (active: boolean) =>
+    `shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+      active ? "bg-ink text-canvas" : "bg-surface-2 text-ink-2 hover:bg-line hover:text-ink"
+    }`;
+
   return (
-    <div className="bg-white dark:bg-dark-surface border border-slate-200/90 dark:border-dark-border rounded-2xl p-5 sm:p-6 shadow-sm mb-8 transition-colors">
-      
-      {/* 1. Segmented Department Quick Filter Tabs (HiringMine Inspired) */}
-      <div className="mb-4 pb-4 border-b border-slate-100 dark:border-dark-border overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-2 min-w-max">
-          <span className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mr-1">
-            Discipline:
-          </span>
+    <div className="mb-8 rounded-[1.75rem] border border-line bg-surface p-5 shadow-soft sm:p-6">
+      {/* Discipline tabs */}
+      <div className="-mx-1 overflow-x-auto px-1 pb-1 no-scrollbar" role="group" aria-label="Filter by discipline">
+        <div className="flex min-w-max items-center gap-2">
           <button
             type="button"
             onClick={() => handleDepartmentTab("all")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              department === "all"
-                ? "bg-navy-950 dark:bg-green-500 text-white shadow-sm"
-                : "bg-slate-100 dark:bg-dark-card text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-dark-border"
-            }`}
+            aria-pressed={department === "all"}
+            className={tabClass(department === "all")}
           >
-            All Disciplines
+            All disciplines
           </button>
           {DEPARTMENTS.map((dept) => (
             <button
               key={dept}
               type="button"
               onClick={() => handleDepartmentTab(dept)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                department === dept
-                  ? "bg-navy-950 dark:bg-green-500 text-white shadow-sm"
-                  : "bg-slate-100 dark:bg-dark-card text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-dark-border"
-              }`}
+              aria-pressed={department === dept}
+              className={tabClass(department === dept)}
             >
               {dept}
             </button>
@@ -130,16 +132,20 @@ export default function JobFilters() {
         </div>
       </div>
 
-      {/* 2. Main Search Bar */}
-      <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
+      {/* Keyword search */}
+      <form onSubmit={handleSearchSubmit} role="search" className="mt-5 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <label htmlFor="job-search" className="sr-only">
+            Search by role, specialty, or city
+          </label>
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" aria-hidden />
           <input
+            id="job-search"
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by role, specialty, or city (e.g. ICU RN, Dallas, Travel)..."
-            className="w-full pl-11 pr-10 py-3 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50/60 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+            placeholder="Search by role, specialty, or city — e.g. ICU RN, Dallas"
+            className="field-input pl-11 pr-10"
           />
           {search && (
             <button
@@ -148,50 +154,51 @@ export default function JobFilters() {
                 setSearch("");
                 applyFilters({ search: "" });
               }}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-              aria-label="Clear search query"
+              className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-ink-3 hover:bg-surface-2 hover:text-ink"
+              aria-label="Clear search"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        <button
-          type="submit"
-          className="btn-accent px-7 py-3 text-sm font-bold shrink-0 rounded-xl"
-        >
-          Search Jobs
-        </button>
-
-        {/* Mobile Filter Toggle */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="sm:hidden flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold border border-slate-200 dark:border-dark-border rounded-xl bg-slate-50 dark:bg-dark-card text-slate-700 dark:text-slate-200"
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          <span>Filters {hasActiveFilters && "•"}</span>
-        </button>
+        <div className="flex gap-3">
+          <button type="submit" className="btn-accent flex-1 sm:flex-none sm:rounded-xl">
+            Search jobs
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-expanded={mobileOpen}
+            aria-controls="job-filter-panel"
+            className="btn-secondary sm:hidden"
+          >
+            <SlidersHorizontal className="h-4 w-4" aria-hidden />
+            Filters{activeChips.length > 0 && ` (${activeChips.length})`}
+          </button>
+        </div>
       </form>
 
-      {/* 3. Detailed Dropdown Filter Console */}
-      <div className={`mt-4 pt-4 border-t border-slate-100 dark:border-dark-border ${mobileOpen ? "block" : "hidden sm:block"}`}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          
-          {/* Clinical Specialty */}
+      {/* Detailed filters */}
+      <div
+        id="job-filter-panel"
+        className={`mt-5 border-t border-line pt-5 ${mobileOpen ? "block" : "hidden sm:block"}`}
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-              Clinical Specialty
+            <label htmlFor="f-specialty" className="field-label">
+              Clinical specialty
             </label>
             <select
+              id="f-specialty"
               value={specialty}
               onChange={(e) => {
                 setSpecialty(e.target.value);
                 applyFilters({ specialty: e.target.value });
               }}
-              className="w-full text-xs py-2.5 px-3 rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+              className="field-input py-2.5 text-sm"
             >
-              <option value="all">All Specialties</option>
+              <option value="all">All specialties</option>
               {SPECIALTIES.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -200,20 +207,20 @@ export default function JobFilters() {
             </select>
           </div>
 
-          {/* Location / US State */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-              US State
+            <label htmlFor="f-state" className="field-label">
+              US state
             </label>
             <select
+              id="f-state"
               value={state}
               onChange={(e) => {
                 setState(e.target.value);
                 applyFilters({ state: e.target.value });
               }}
-              className="w-full text-xs py-2.5 px-3 rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+              className="field-input py-2.5 text-sm"
             >
-              <option value="all">All States (Nationwide)</option>
+              <option value="all">All states (nationwide)</option>
               {US_STATES.map((st) => (
                 <option key={st.code} value={st.code}>
                   {st.name} ({st.code})
@@ -222,20 +229,20 @@ export default function JobFilters() {
             </select>
           </div>
 
-          {/* Employment Contract Type */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-              Contract Type
+            <label htmlFor="f-type" className="field-label">
+              Contract type
             </label>
             <select
+              id="f-type"
               value={employmentType}
               onChange={(e) => {
                 setEmploymentType(e.target.value);
                 applyFilters({ employmentType: e.target.value });
               }}
-              className="w-full text-xs py-2.5 px-3 rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+              className="field-input py-2.5 text-sm"
             >
-              <option value="all">All Contract Types</option>
+              <option value="all">All contract types</option>
               {EMPLOYMENT_TYPES.map((emp) => (
                 <option key={emp} value={emp}>
                   {emp}
@@ -244,86 +251,49 @@ export default function JobFilters() {
             </select>
           </div>
 
-          {/* Sort Order */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-              Sort Order
+            <label htmlFor="f-sort" className="field-label">
+              Sort by
             </label>
             <select
+              id="f-sort"
               value={sortBy}
               onChange={(e) => {
                 setSortBy(e.target.value);
                 applyFilters({ sortBy: e.target.value });
               }}
-              className="w-full text-xs py-2.5 px-3 rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+              className="field-input py-2.5 text-sm"
             >
-              <option value="newest">Most Recent Postings</option>
-              <option value="pay">Highest Weekly Pay</option>
+              <option value="newest">Most recent postings</option>
+              <option value="pay">Highest weekly pay</option>
             </select>
           </div>
         </div>
 
-        {/* 4. Active Filter Tags & Reset Action */}
         {hasActiveFilters && (
-          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-dark-border flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-bold text-slate-500 dark:text-slate-400">
-                Active Filters:
-              </span>
-
-              {search.trim() && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/60 font-semibold">
-                  Keyword: {search}
-                  <button type="button" onClick={() => removeFilter("search")} aria-label="Remove search filter">
-                    <X className="w-3 h-3 hover:text-green-950 dark:hover:text-white" />
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-sm">
+            <ul className="flex flex-wrap items-center gap-2" aria-label="Active filters">
+              {activeChips.map((chip) => (
+                <li key={chip.key}>
+                  <button
+                    type="button"
+                    onClick={() => removeFilter(chip.key)}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 font-medium text-brand-ink transition-colors hover:bg-brand/15"
+                    aria-label={`Remove filter ${chip.label}`}
+                  >
+                    {chip.label}
+                    <X className="h-3.5 w-3.5" aria-hidden />
                   </button>
-                </span>
-              )}
-
-              {department && department !== "all" && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/60 font-semibold">
-                  {department}
-                  <button type="button" onClick={() => removeFilter("department")} aria-label="Remove department filter">
-                    <X className="w-3 h-3 hover:text-green-950 dark:hover:text-white" />
-                  </button>
-                </span>
-              )}
-
-              {specialty && specialty !== "all" && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/60 font-semibold">
-                  {specialty}
-                  <button type="button" onClick={() => removeFilter("specialty")} aria-label="Remove specialty filter">
-                    <X className="w-3 h-3 hover:text-green-950 dark:hover:text-white" />
-                  </button>
-                </span>
-              )}
-
-              {state && state !== "all" && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/60 font-semibold">
-                  State: {state}
-                  <button type="button" onClick={() => removeFilter("state")} aria-label="Remove state filter">
-                    <X className="w-3 h-3 hover:text-green-950 dark:hover:text-white" />
-                  </button>
-                </span>
-              )}
-
-              {employmentType && employmentType !== "all" && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/60 font-semibold">
-                  Type: {employmentType}
-                  <button type="button" onClick={() => removeFilter("employmentType")} aria-label="Remove employment type filter">
-                    <X className="w-3 h-3 hover:text-green-950 dark:hover:text-white" />
-                  </button>
-                </span>
-              )}
-            </div>
-
+                </li>
+              ))}
+            </ul>
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center gap-1.5 text-green-700 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 font-bold transition-colors ml-auto"
+              className="ml-auto inline-flex items-center gap-1.5 font-semibold text-ink-2 transition-colors hover:text-ink"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset All Filters</span>
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+              Reset all
             </button>
           </div>
         )}

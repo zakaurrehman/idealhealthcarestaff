@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import MotionProvider from "@/components/motion/MotionProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,7 +12,15 @@ const inter = Inter({
   display: "swap",
 });
 
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://idealhealthcarestaff.com"),
   title: {
     default: "Ideal Healthcare Staffing | Exceptional People. Exceptional Care.",
     template: "%s | Ideal Healthcare Staffing",
@@ -34,9 +43,11 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Ideal Healthcare Staffing | Exceptional People. Exceptional Care.",
-    description: "The Right Professionals. The Right Place. The Right Time.™ Verified travel nursing and healthcare facility staffing solutions.",
+    description:
+      "The Right Professionals. The Right Place. The Right Time.™ Verified travel nursing and healthcare facility staffing solutions.",
     type: "website",
     locale: "en_US",
+    images: [{ url: "/images/hero-clinician.jpg", width: 1200, height: 1800 }],
   },
   robots: {
     index: true,
@@ -45,7 +56,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#061530",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F6F8FB" },
+    { media: "(prefers-color-scheme: dark)", color: "#060E1C" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
@@ -71,17 +85,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jakarta.variable}`}>
       <head>
-        <script
-          dangerouslySetInnerHTML={{ __html: themeInitScript }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-screen flex flex-col font-sans bg-[#FBFBFA] dark:bg-[#070E1A] text-[#0B1B3D] dark:text-[#E2E8F0] antialiased transition-colors duration-200">
+      <body className="flex min-h-screen flex-col bg-canvas font-sans text-ink-2 antialiased">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-canvas"
+        >
+          Skip to content
+        </a>
         <ThemeProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <MotionProvider>
+            <Navbar />
+            <main id="main" className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>

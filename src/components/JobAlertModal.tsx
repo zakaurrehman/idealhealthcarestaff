@@ -1,21 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { handleJobAlertSubscription } from "@/app/actions/alerts";
-import { Bell, CheckCircle2, AlertCircle, X, ShieldCheck } from "lucide-react";
+import { AlertCircle, Bell, CheckCircle2, Loader2, ShieldCheck, X } from "lucide-react";
 import { SPECIALTIES, US_STATES } from "@/lib/constants";
 
-export default function JobAlertModal({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) {
+export default function JobAlertModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<{ success: boolean; message: string } | null>(null);
+  const firstFieldRef = useRef<HTMLInputElement>(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const t = window.setTimeout(() => firstFieldRef.current?.focus(), 60);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      window.clearTimeout(t);
+    };
+  }, [isOpen, onClose]);
+
+  // Reset state after closing so the dialog opens fresh next time.
+  useEffect(() => {
+    if (!isOpen) setStatus(null);
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,122 +43,145 @@ export default function JobAlertModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl border border-slate-200/90 dark:border-dark-border max-w-md w-full overflow-hidden relative">
-        <button
-          onClick={onClose}
-          type="button"
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-dark-card transition-colors"
-          aria-label="Close dialog"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
         >
-          <X className="w-5 h-5" />
-        </button>
+          <button
+            type="button"
+            aria-label="Close dialog"
+            tabIndex={-1}
+            onClick={onClose}
+            className="absolute inset-0 cursor-default bg-navy-950/60 backdrop-blur-sm"
+          />
 
-        <div className="p-6 sm:p-8">
-          <div className="w-12 h-12 bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mb-4 border border-green-100 dark:border-green-900/50">
-            <Bell className="w-6 h-6" />
-          </div>
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="job-alert-title"
+            aria-describedby="job-alert-desc"
+            className="relative w-full max-w-md overflow-hidden rounded-t-[1.75rem] border border-line bg-surface shadow-2xl sm:rounded-[1.75rem]"
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.98 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <button
+              onClick={onClose}
+              type="button"
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-surface-2 hover:text-ink"
+              aria-label="Close dialog"
+            >
+              <X className="h-5 w-5" />
+            </button>
 
-          <h3 className="text-xl font-bold text-navy-950 dark:text-white mb-1 font-display">
-            Clinical Job Alerts
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-            Receive immediate notifications when new travel contracts or hospital direct-hire openings match your specialty and preferred states.
-          </p>
+            <div className="p-6 sm:p-8">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-soft text-brand-ink">
+                <Bell className="h-6 w-6" aria-hidden />
+              </span>
+              <h2 id="job-alert-title" className="mt-5 font-display text-xl font-bold text-ink">
+                Clinical job alerts
+              </h2>
+              <p id="job-alert-desc" className="mt-1.5 text-sm leading-relaxed text-ink-3">
+                Get notified when new travel contracts or direct-hire openings match your specialty and preferred
+                states.
+              </p>
 
-          {status ? (
-            <div className={`p-4 rounded-xl text-xs leading-relaxed mb-4 ${
-              status.success 
-                ? "bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/60" 
-                : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60"
-            }`}>
-              <div className="flex items-start gap-2.5">
-                {status.success ? (
-                  <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-                )}
-                <span>{status.message}</span>
-              </div>
-              {status.success && (
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="mt-3 font-bold text-green-900 dark:text-green-300 underline block"
+              {status ? (
+                <div
+                  role={status.success ? "status" : "alert"}
+                  className={`mt-6 rounded-2xl border p-4 text-sm leading-relaxed ${
+                    status.success
+                      ? "border-brand/30 bg-brand-soft text-ink"
+                      : "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-400/25 dark:bg-rose-400/10 dark:text-rose-200"
+                  }`}
                 >
-                  Close Window
-                </button>
+                  <div className="flex items-start gap-2.5">
+                    {status.success ? (
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-ink" aria-hidden />
+                    ) : (
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                    )}
+                    <span>{status.message}</span>
+                  </div>
+                  {status.success ? (
+                    <button type="button" onClick={onClose} className="btn-secondary btn-sm mt-4">
+                      Close
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => setStatus(null)} className="mt-3 font-semibold underline">
+                      Try again
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                  <div>
+                    <label htmlFor="alert-email" className="field-label">
+                      Email address *
+                    </label>
+                    <input
+                      ref={firstFieldRef}
+                      id="alert-email"
+                      required
+                      type="email"
+                      name="email"
+                      autoComplete="email"
+                      placeholder="you@email.com"
+                      className="field-input"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="alert-specialty" className="field-label">
+                      Target specialty
+                    </label>
+                    <select id="alert-specialty" name="specialty" defaultValue="" className="field-input">
+                      <option value="">All specialties</option>
+                      {SPECIALTIES.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="alert-state" className="field-label">
+                      Preferred state
+                    </label>
+                    <select id="alert-state" name="state" defaultValue="" className="field-input">
+                      <option value="">Any state (nationwide)</option>
+                      {US_STATES.map((st) => (
+                        <option key={st.code} value={st.code}>
+                          {st.name} ({st.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <button type="submit" disabled={submitting} className="btn-accent w-full">
+                    {submitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                        Saving preferences…
+                      </>
+                    ) : (
+                      "Subscribe to job alerts"
+                    )}
+                  </button>
+                  <p className="flex items-center justify-center gap-1.5 text-xs text-ink-3">
+                    <ShieldCheck className="h-3.5 w-3.5 text-brand-ink" aria-hidden />
+                    Zero spam. Unsubscribe anytime.
+                  </p>
+                </form>
               )}
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Email Address *
-                </label>
-                <input
-                  required
-                  type="email"
-                  name="email"
-                  placeholder="nurse@hospital.org"
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Target Specialty
-                </label>
-                <select
-                  name="specialty"
-                  defaultValue=""
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">All Specialties</option>
-                  {SPECIALTIES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Preferred Location / State
-                </label>
-                <select
-                  name="state"
-                  defaultValue=""
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">Any State (Nationwide)</option>
-                  {US_STATES.map((st) => (
-                    <option key={st.code} value={st.code}>
-                      {st.name} ({st.code})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full btn-accent py-3 text-xs font-bold rounded-xl"
-                >
-                  {submitting ? "Saving Preferences..." : "Subscribe to Job Alerts"}
-                </button>
-              </div>
-
-              <p className="text-[11px] text-slate-400 dark:text-slate-400 text-center flex items-center justify-center gap-1.5 pt-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                <span>Zero spam. Unsubscribe anytime with 1 click.</span>
-              </p>
-            </form>
-          )}
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

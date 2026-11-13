@@ -1,297 +1,226 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { 
-  Menu, 
-  X, 
-  Briefcase, 
-  Building2, 
-  PhoneCall, 
-  ChevronRight, 
-  Stethoscope,
-  Lock,
-  MapPin,
-  Bell,
-  ShieldCheck
-} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, Bell, Lock, Menu, Phone, X } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import ThemeToggle from "@/components/ThemeToggle";
 import JobAlertModal from "@/components/JobAlertModal";
+import Logo from "@/components/Logo";
+
+const NAV_LINKS = [
+  { href: "/jobs", label: "Find Jobs" },
+  { href: "/facilities", label: "For Facilities" },
+  { href: "/#specialties", label: "Specialties" },
+  { href: "/privacy-policy", label: "Compliance" },
+];
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
   const pathname = usePathname();
+  const closeAlerts = useCallback(() => setAlertModalOpen(false), []);
 
-  const isActive = (path: string) => {
-    if (path === "/" && pathname === "/") return true;
-    if (path !== "/" && pathname.startsWith(path)) return true;
-    return false;
+  const isActive = (href: string) => {
+    if (href.startsWith("/#")) return false;
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close the mobile menu on navigation and lock scroll while it is open.
+  useEffect(() => setMobileMenuOpen(false), [pathname]);
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMobileMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileMenuOpen]);
+
+  const activeOrHovered = hovered ?? NAV_LINKS.find((l) => isActive(l.href))?.href ?? null;
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#030A16]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 shadow-sm transition-colors duration-300">
-        {/* Top Institutional Ticker / Bar */}
-        <div className="bg-[#02060E] text-slate-300 text-[11px] py-2 px-4 sm:px-8 border-b border-white/10 hidden md:block">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <div className="flex items-center gap-5">
-              <span className="flex items-center gap-1.5 font-bold text-green-400 tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span>{COMPANY_INFO.tagline}</span>
-              </span>
-              <span className="text-slate-600 dark:text-slate-700">•</span>
-              <span className="text-slate-300 dark:text-slate-400 font-medium hidden lg:inline">
-                {COMPANY_INFO.subtagline}
-              </span>
-            </div>
+      <header
+        className={`sticky top-0 z-50 transition-[background-color,box-shadow,border-color] duration-300 ${
+          scrolled || mobileMenuOpen
+            ? "border-b border-line bg-surface/85 shadow-[0_1px_0_rgb(10_31_68/0.02),0_8px_24px_-16px_rgb(10_31_68/0.25)] backdrop-blur-xl"
+            : "border-b border-transparent bg-canvas/0"
+        }`}
+      >
+        <div className="container-page">
+          <div className="flex h-[4.5rem] items-center justify-between gap-6 lg:h-20">
+            <Logo priority />
 
-            <div className="flex items-center gap-5">
-              <button
-                type="button"
-                onClick={() => setAlertModalOpen(true)}
-                className="flex items-center gap-1.5 text-slate-300 hover:text-green-400 transition-colors font-medium cursor-pointer"
-              >
-                <Bell className="w-3.5 h-3.5 text-green-400" />
-                <span>Job Alerts</span>
-              </button>
-              <span className="text-slate-700">|</span>
-              <a 
-                href={COMPANY_INFO.phoneHref} 
-                className="flex items-center gap-1.5 text-slate-200 hover:text-green-400 transition-colors font-bold"
-              >
-                <PhoneCall className="w-3.5 h-3.5 text-green-400" />
-                <span>{COMPANY_INFO.phone}</span>
-              </a>
-              <span className="text-slate-700">|</span>
-              <span className="text-slate-400 text-[11px] hidden xl:flex items-center gap-1">
-                <MapPin className="w-3 h-3 text-slate-400" />
-                <span>Los Angeles, CA</span>
-              </span>
-              <span className="text-slate-700 hidden xl:inline">|</span>
-              <Link 
-                href="/admin" 
-                className="flex items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors font-medium"
-              >
-                <Lock className="w-3 h-3 text-slate-400" />
-                <span>Portal Login</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Navigation Bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 sm:h-22">
-            
-            {/* Official Logo */}
-            <Link 
-              href="/" 
-              className="flex items-center group py-2 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-xl"
-            >
-              <div className="relative flex items-center">
-                <Image
-                  src="/images/logo.webp"
-                  alt="Ideal Healthcare Staffing"
-                  width={215}
-                  height={65}
-                  priority
-                  className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02] dark:brightness-105"
-                />
-              </div>
-            </Link>
-
-            {/* Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
-              <Link
-                href="/jobs"
-                className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-2 ${
-                  isActive("/jobs") && !pathname.startsWith("/apply") 
-                    ? "bg-green-500/10 dark:bg-green-950/50 text-green-800 dark:text-green-300 border border-green-500/30 dark:border-green-500/40 shadow-sm" 
-                    : "text-slate-700 dark:text-slate-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-slate-100/80 dark:hover:bg-white/5"
-                }`}
-              >
-                <Briefcase className="w-4 h-4 text-green-600 dark:text-green-400" />
-                <span>Find Travel Jobs</span>
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              </Link>
-
-              <Link
-                href="/facilities"
-                className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-2 ${
-                  isActive("/facilities") 
-                    ? "bg-green-500/10 dark:bg-green-950/50 text-green-800 dark:text-green-300 border border-green-500/30 dark:border-green-500/40 shadow-sm" 
-                    : "text-slate-700 dark:text-slate-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-slate-100/80 dark:hover:bg-white/5"
-                }`}
-              >
-                <Building2 className="w-4 h-4 text-navy-900 dark:text-sky-400" />
-                <span>For Facilities</span>
-                <span className="text-[10px] uppercase font-extrabold bg-navy-100 dark:bg-navy-900/80 text-navy-900 dark:text-sky-300 px-1.5 py-0.5 rounded border border-navy-200 dark:border-navy-700">
-                  B2B
-                </span>
-              </Link>
-
-              <Link
-                href="/#specialties"
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-slate-100/80 dark:hover:bg-white/5 transition-all duration-200 flex items-center gap-1.5"
-              >
-                <Stethoscope className="w-4 h-4 text-slate-400" />
-                <span>Specialties</span>
-              </Link>
-
-              <Link
-                href="/privacy-policy"
-                className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-                  isActive("/privacy-policy") 
-                    ? "bg-green-500/10 dark:bg-green-950/50 text-green-800 dark:text-green-300 border border-green-500/30 dark:border-green-500/40 shadow-sm" 
-                    : "text-slate-700 dark:text-slate-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-slate-100/80 dark:hover:bg-white/5"
-                }`}
-              >
-                Compliance & Privacy
-              </Link>
+            {/* Desktop navigation */}
+            <nav aria-label="Primary" className="hidden lg:block">
+              <ul className="flex items-center gap-1" onMouseLeave={() => setHovered(null)}>
+                {NAV_LINKS.map((link) => {
+                  const active = isActive(link.href);
+                  return (
+                    <li key={link.href} className="relative">
+                      <Link
+                        href={link.href}
+                        onMouseEnter={() => setHovered(link.href)}
+                        aria-current={active ? "page" : undefined}
+                        className={`relative z-10 block rounded-full px-4 py-2 text-[0.9375rem] font-medium transition-colors ${
+                          active ? "text-ink" : "text-ink-2 hover:text-ink"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                      {activeOrHovered === link.href && (
+                        <motion.span
+                          layoutId="nav-pill"
+                          className="absolute inset-0 rounded-full bg-surface-2"
+                          transition={{ type: "spring", stiffness: 420, damping: 36 }}
+                        />
+                      )}
+                      {active && (
+                        <span className="absolute bottom-0.5 left-1/2 z-10 h-1 w-1 -translate-x-1/2 rounded-full bg-brand-bright" />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </nav>
 
-            {/* Actions: Theme Toggle, Job Alerts, and Staffing CTA */}
-            <div className="hidden sm:flex items-center gap-3">
-              {/* Dark/Light Theme Toggle */}
-              <ThemeToggle />
-
-              {/* Quick Job Alert Bell */}
+            {/* Desktop actions */}
+            <div className="hidden items-center gap-2 lg:flex">
+              <a
+                href={COMPANY_INFO.phoneHref}
+                className="mr-1 hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-ink-2 transition-colors hover:text-ink xl:inline-flex"
+              >
+                <Phone className="h-4 w-4 text-brand-ink" aria-hidden />
+                {COMPANY_INFO.phone}
+              </a>
               <button
                 type="button"
                 onClick={() => setAlertModalOpen(true)}
-                className="group relative p-2.5 rounded-xl border border-slate-200 dark:border-navy-700/80 bg-slate-100/90 dark:bg-navy-900/80 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-navy-800 hover:text-green-600 dark:hover:text-green-400 hover:border-green-500/40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
-                title="Subscribe to Job Alerts"
-                aria-label="Subscribe to Job Alerts"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink"
+                aria-label="Subscribe to job alerts"
+                title="Job alerts"
               >
-                <Bell className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
+                <Bell className="h-[18px] w-[18px]" />
               </button>
-
-              <Link
-                href="/facilities#inquiry-form"
-                className="btn-accent text-xs font-bold px-5 py-2.5 shadow-md hover:shadow-xl flex items-center gap-1.5 rounded-xl hover-lift cursor-pointer"
-              >
-                <span>Request Staffing</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+              <ThemeToggle />
+              <Link href="/facilities#inquiry-form" className="btn-accent btn-sm ml-2 group">
+                Request Staffing
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
 
-            {/* Mobile Hamburger & Theme Toggle */}
-            <div className="flex items-center gap-2 lg:hidden">
+            {/* Mobile actions */}
+            <div className="flex items-center gap-1 lg:hidden">
               <ThemeToggle />
-
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => setMobileMenuOpen((o) => !o)}
                 type="button"
-                className="p-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:text-navy-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-dark-surface focus:outline-none focus:ring-2 focus:ring-green-500"
-                aria-label="Toggle menu"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-2"
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-menu"
               >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden border-b border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-5 pt-4 pb-6 space-y-4 shadow-2xl transition-colors">
-            <div className="space-y-1.5">
-              <Link
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3.5 py-2.5 rounded-xl text-base font-bold text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-dark-card"
-              >
-                Home
-              </Link>
-              <Link
-                href="/jobs"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-base font-bold text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-dark-card"
-              >
-                <span className="flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  <span>Find Travel Jobs</span>
-                </span>
-                <span className="w-2 h-2 rounded-full bg-green-500" />
-              </Link>
-              <Link
-                href="/facilities"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-base font-bold text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-dark-card"
-              >
-                <Building2 className="w-4 h-4 text-navy-900 dark:text-sky-400" />
-                <span>For Healthcare Facilities</span>
-              </Link>
-              <Link
-                href="/#specialties"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-base font-bold text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-dark-card"
-              >
-                <Stethoscope className="w-4 h-4 text-slate-400" />
-                <span>Specialties & Disciplines</span>
-              </Link>
-              <Link
-                href="/privacy-policy"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3.5 py-2.5 rounded-xl text-base font-bold text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-dark-card"
-              >
-                Compliance & Privacy
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setAlertModalOpen(true);
-                }}
-                className="w-full flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-base font-bold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-dark-card"
-              >
-                <Bell className="w-4 h-4" />
-                <span>Subscribe to Job Alerts</span>
-              </button>
-            </div>
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              id="mobile-menu"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "calc(100dvh - 4.5rem)" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-y-auto border-t border-line bg-surface lg:hidden"
+            >
+              <nav aria-label="Mobile" className="container-page flex min-h-full flex-col py-6">
+                <ul className="space-y-1">
+                  {[{ href: "/", label: "Home" }, ...NAV_LINKS].map((link, i) => (
+                    <motion.li
+                      key={link.href}
+                      initial={{ opacity: 0, x: -12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 + i * 0.04, duration: 0.4 }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center justify-between rounded-2xl px-4 py-3.5 font-display text-xl font-semibold transition-colors ${
+                          isActive(link.href) || (link.href === "/" && pathname === "/")
+                            ? "bg-surface-2 text-ink"
+                            : "text-ink hover:bg-surface-2"
+                        }`}
+                      >
+                        {link.label}
+                        <ArrowRight className="h-5 w-5 text-ink-3" aria-hidden />
+                      </Link>
+                    </motion.li>
+                  ))}
+                </ul>
 
-            <div className="pt-4 border-t border-slate-100 dark:border-dark-border grid grid-cols-1 gap-3">
-              <Link
-                href="/jobs"
-                onClick={() => setMobileMenuOpen(false)}
-                className="btn-accent w-full py-3 text-center text-sm font-bold flex items-center justify-center gap-2"
-              >
-                <Briefcase className="w-4 h-4" />
-                <span>Search Open Jobs</span>
-              </Link>
-
-              <Link
-                href="/facilities#inquiry-form"
-                onClick={() => setMobileMenuOpen(false)}
-                className="btn-primary w-full py-3 text-center text-sm font-bold flex items-center justify-center gap-2"
-              >
-                <Building2 className="w-4 h-4 text-green-400" />
-                <span>Request Staffing Coverage</span>
-              </Link>
-
-              <div className="pt-3 border-t border-slate-100 dark:border-dark-border flex flex-col gap-1.5 text-xs text-slate-600 dark:text-slate-400 px-1">
-                <a href={COMPANY_INFO.phoneHref} className="font-bold text-navy-950 dark:text-white hover:text-green-600 dark:hover:text-green-400 flex items-center gap-1.5">
-                  <PhoneCall className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                  <span>Call {COMPANY_INFO.phone}</span>
-                </a>
-                <div className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span>{COMPANY_INFO.address}</span>
+                <div className="mt-6 grid gap-3">
+                  <Link href="/jobs" onClick={() => setMobileMenuOpen(false)} className="btn-accent btn-lg">
+                    Search Open Jobs
+                  </Link>
+                  <Link
+                    href="/facilities#inquiry-form"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="btn-secondary btn-lg"
+                  >
+                    Request Staffing
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setAlertModalOpen(true);
+                    }}
+                    className="btn btn-lg text-brand-ink hover:bg-brand-soft"
+                  >
+                    <Bell className="h-4 w-4" />
+                    Subscribe to Job Alerts
+                  </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
+
+                <div className="mt-auto space-y-3 border-t border-line pt-6 text-sm text-ink-2">
+                  <a href={COMPANY_INFO.phoneHref} className="flex items-center gap-2.5 font-semibold text-ink">
+                    <Phone className="h-4 w-4 text-brand-ink" aria-hidden />
+                    {COMPANY_INFO.phone}
+                  </a>
+                  <p className="text-ink-3">{COMPANY_INFO.address}</p>
+                  <Link href="/admin" className="inline-flex items-center gap-1.5 text-ink-3 hover:text-ink">
+                    <Lock className="h-3.5 w-3.5" aria-hidden />
+                    Staff Portal
+                  </Link>
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
-      {/* Embedded Job Alert Modal */}
-      <JobAlertModal
-        isOpen={alertModalOpen}
-        onClose={() => setAlertModalOpen(false)}
-      />
+      <JobAlertModal isOpen={alertModalOpen} onClose={closeAlerts} />
     </>
   );
 }

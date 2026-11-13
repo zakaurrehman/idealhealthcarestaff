@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, ChevronRight, Phone, SearchX } from "lucide-react";
 import { getJobs } from "@/lib/db";
 import JobCard from "@/components/JobCard";
 import JobFilters from "@/components/JobFilters";
-import { Briefcase, SlidersHorizontal, AlertCircle, ArrowRight, ShieldCheck, Sparkles, PhoneCall, Bell } from "lucide-react";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { COMPANY_INFO } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -41,127 +43,133 @@ export default async function JobsPage(props: JobsPageProps) {
   const { jobs, total } = await getJobs(filters);
 
   return (
-    <div className="bg-[#FCFCFB] dark:bg-[#070E1A] min-h-screen py-10 sm:py-14 transition-colors duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header Breadcrumb & Title */}
-        <div className="mb-8">
-          <nav className="text-xs text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1.5">
-            <Link href="/" className="hover:text-navy-950 dark:hover:text-white transition-colors font-medium">Home</Link>
-            <span>/</span>
-            <span className="text-green-700 dark:text-green-400 font-bold">Clinical Jobs</span>
+    <>
+      {/* Page header */}
+      <section className="border-b border-line bg-surface">
+        <div className="container-page pb-10 pt-8 sm:pb-12 sm:pt-10">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-ink-3">
+            <Link href="/" className="hover:text-ink">
+              Home
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+            <span aria-current="page" className="font-medium text-ink">
+              Clinical jobs
+            </span>
           </nav>
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800/60 text-green-800 dark:text-green-300 text-xs font-bold mb-2">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span>Verified Hospital Orders Active</span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-navy-950 dark:text-white tracking-tight font-display">
-                Healthcare Job Opportunities
+          <div className="mt-6 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div className="max-w-2xl">
+              <p className="eyebrow rise">Verified hospital orders</p>
+              <h1
+                className="rise mt-4 font-display text-display font-bold text-ink"
+                style={{ "--delay": "0.08s" } as React.CSSProperties}
+              >
+                Healthcare job opportunities
               </h1>
-              <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl font-normal">
-                Explore verified travel nursing, therapy, allied health, and permanent clinical positions. Filter by specialty, state, and contract type.
+              <p
+                className="rise mt-4 text-lead text-ink-2"
+                style={{ "--delay": "0.16s" } as React.CSSProperties}
+              >
+                Explore verified travel nursing, therapy, allied health, and permanent clinical positions. Filter by
+                specialty, state, and contract type.
               </p>
             </div>
-
-            <div className="flex flex-wrap items-center gap-2.5">
-              <div className="text-xs text-slate-700 dark:text-slate-200 flex items-center gap-2 bg-white dark:bg-dark-surface px-4 py-2 rounded-xl border border-slate-200/90 dark:border-dark-border shadow-sm shrink-0 font-bold">
-                <ShieldCheck className="w-4 h-4 text-green-600 dark:text-green-400" />
-                <span>Verified Hospital Orders</span>
-              </div>
-            </div>
+            <p className="rise flex items-center gap-2.5 text-sm text-ink-3" style={{ "--delay": "0.24s" } as React.CSSProperties}>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-bright opacity-50 motion-reduce:hidden" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand-bright" />
+              </span>
+              <span>
+                <strong className="font-semibold text-ink">{total}</strong> active{" "}
+                {total === 1 ? "opening" : "openings"}
+              </span>
+            </p>
           </div>
         </div>
+      </section>
 
-        {/* Interactive Search & Filter Bar */}
-        <Suspense fallback={<div className="h-32 bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border animate-pulse mb-8" />}>
+      <div className="container-page py-10 sm:py-12">
+        <Suspense fallback={<div className="mb-8 h-40 animate-pulse rounded-3xl border border-line bg-surface" />}>
           <JobFilters />
         </Suspense>
 
-        {/* Results Counter & Meta */}
-        <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-200/90 dark:border-dark-border">
-          <div className="text-sm font-bold text-navy-950 dark:text-white">
-            Showing <span className="text-green-700 dark:text-green-400 font-black">{jobs.length}</span> {jobs.length === 1 ? "position" : "positions"}
-            {total > jobs.length && ` of ${total} total`}
-          </div>
-
-          <div className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-            Sorted by: <span className="font-bold text-slate-900 dark:text-slate-200">{filters.sortBy === "pay" ? "Highest Compensation" : "Most Recent"}</span>
-          </div>
+        {/* Results meta */}
+        <div className="mb-6 flex items-center justify-between gap-4" aria-live="polite">
+          <p className="text-[0.9375rem] text-ink-2">
+            Showing <strong className="font-semibold text-ink">{jobs.length}</strong>{" "}
+            {jobs.length === 1 ? "position" : "positions"}
+            {total > jobs.length && ` of ${total}`}
+          </p>
+          <p className="hidden text-sm text-ink-3 sm:block">
+            Sorted by{" "}
+            <span className="font-medium text-ink">{filters.sortBy === "pay" ? "highest pay" : "most recent"}</span>
+          </p>
         </div>
 
-        {/* Job Listings Grid or Empty State */}
         {jobs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Stagger className="grid gap-6 md:grid-cols-2" stagger={0.06}>
             {jobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <StaggerItem key={job.id} className="h-full">
+                <JobCard job={job} />
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         ) : (
-          <div className="bg-white dark:bg-dark-surface border border-slate-200/90 dark:border-dark-border rounded-3xl p-12 text-center max-w-lg mx-auto shadow-sm my-8">
-            <div className="w-14 h-14 bg-slate-100 dark:bg-dark-card text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-7 h-7" />
+          <div className="mx-auto my-8 max-w-lg rounded-[1.75rem] border border-line bg-surface p-10 text-center sm:p-12">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-2 text-ink-3">
+              <SearchX className="h-7 w-7" aria-hidden />
             </div>
-            <h3 className="text-xl font-bold text-navy-950 dark:text-white mb-2 font-display">
-              No matching clinical jobs found
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-              We couldn&apos;t find any positions matching your selected criteria. Try adjusting or resetting your specialty and location filters.
+            <h2 className="mt-5 font-display text-xl font-bold text-ink">No matching clinical jobs found</h2>
+            <p className="mt-2 leading-relaxed text-ink-3">
+              We couldn&apos;t find positions matching your criteria. Try adjusting or resetting your specialty and
+              location filters.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/jobs"
-                className="btn-accent text-xs font-bold px-6 py-3"
-              >
-                Clear All Filters
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link href="/jobs" className="btn-accent">
+                Clear all filters
               </Link>
-              <Link
-                href="/facilities#inquiry-form"
-                className="btn-secondary text-xs font-bold px-6 py-3 dark:bg-dark-card dark:border-dark-border dark:text-white"
-              >
-                Inquire About Custom Placement
+              <Link href="/apply/general" className="btn-secondary">
+                Submit a general profile
               </Link>
             </div>
           </div>
         )}
 
-        {/* Candidate Support Banner */}
-        <div className="mt-16 bg-navy-950 dark:bg-dark-surface text-white rounded-3xl p-8 sm:p-12 border border-navy-800 dark:border-dark-border shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
-            <div className="md:col-span-8 space-y-3">
-              <span className="text-xs font-extrabold text-green-400 uppercase tracking-wider">
-                Looking for a specific facility or unlisted specialty?
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-display">
+        {/* Recruiter banner — image and copy side by side, never overlapping */}
+        <Reveal className="mt-20 overflow-hidden rounded-[2rem] bg-navy-950 text-white">
+          <div className="grid lg:grid-cols-12">
+            <div className="relative aspect-[16/10] lg:col-span-5 lg:aspect-auto">
+              <Image
+                src="/images/nurse-portrait-teal.jpg"
+                alt="Smiling nurse in teal scrubs"
+                fill
+                sizes="(min-width: 1024px) 520px, 100vw"
+                className="object-cover object-[50%_30%]"
+              />
+            </div>
+            <div className="p-8 sm:p-12 lg:col-span-7 lg:p-14">
+              <p className="eyebrow eyebrow-on-dark">Looking for something specific?</p>
+              <h2 className="mt-4 font-display text-title font-bold text-white sm:text-[2.25rem] sm:leading-[1.12]">
                 Speak directly with an Ideal Healthcare recruitment specialist.
               </h2>
-              <p className="text-sm text-slate-300 dark:text-slate-300 leading-relaxed font-normal">
-                Our clinical placement coordinators maintain direct access to unadvertised hospital requests, rapid response units, and upcoming contract blocks across leading medical networks.
+              <p className="mt-4 max-w-xl leading-relaxed text-slate-300">
+                Our clinical placement coordinators maintain direct access to unadvertised hospital requests, rapid
+                response units, and upcoming contract blocks across leading medical networks.
               </p>
-            </div>
-            <div className="md:col-span-4 flex flex-col sm:flex-row md:flex-col gap-3">
-              <Link
-                href="/facilities#inquiry-form"
-                className="btn-accent text-center text-sm py-3.5 font-bold shadow-lg"
-              >
-                Submit General Profile
-              </Link>
-              <a
-                href={COMPANY_INFO.phoneHref}
-                className="btn-secondary text-center text-sm py-3.5 font-bold text-navy-950 bg-white hover:text-green-700"
-              >
-                <PhoneCall className="w-4 h-4 text-green-600 inline-block mr-1.5" />
-                Call {COMPANY_INFO.phone}
-              </a>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link href="/apply/general" className="btn-accent group">
+                  Submit a general profile
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <a href={COMPANY_INFO.phoneHref} className="btn-on-dark">
+                  <Phone className="h-4 w-4 text-green-400" aria-hidden />
+                  Call {COMPANY_INFO.phone}
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-
+        </Reveal>
       </div>
-    </div>
+    </>
   );
 }

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getJobById } from "@/lib/db";
 import ApplicationForm from "@/components/ApplicationForm";
-import { ArrowLeft, MapPin, Building, Clock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Briefcase, Clock, MapPin, Phone, ShieldCheck, UserCheck, Wallet } from "lucide-react";
+import { COMPANY_INFO } from "@/lib/constants";
 
 interface ApplyPageProps {
   params: Promise<{ jobId: string }>;
@@ -14,7 +15,9 @@ export async function generateMetadata(props: ApplyPageProps): Promise<Metadata>
 
   return {
     title: job ? `Apply for ${job.title}` : "Submit Clinical Application",
-    description: "Submit your application and resume to Ideal Healthcare Staffing for review by our clinical placement specialists.",
+    description:
+      "Submit your application and resume to Ideal Healthcare Staffing for review by our clinical placement specialists.",
+    robots: { index: false, follow: true },
   };
 }
 
@@ -28,65 +31,85 @@ export default async function ApplyPage(props: ApplyPageProps) {
   const defaultSpecialty = job ? job.specialty : undefined;
 
   return (
-    <div className="bg-[#FBFBFA] dark:bg-[#070E1A] min-h-screen py-10 sm:py-14 transition-colors duration-200">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Back Link */}
-        <div className="mb-6">
-          <Link
-            href={job ? `/jobs/${job.slug}` : "/jobs"}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white transition-colors"
+    <div className="container-page py-10 sm:py-14">
+      <Link
+        href={job ? `/jobs/${job.slug}` : "/jobs"}
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-3 transition-colors hover:text-ink"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden />
+        {job ? "Back to job details" : "Back to all jobs"}
+      </Link>
+
+      <div className="mt-8 grid items-start gap-10 lg:grid-cols-12 lg:gap-14">
+        {/* Context column */}
+        <aside className="lg:sticky lg:top-28 lg:col-span-4">
+          <p className="eyebrow rise">{job ? "Applying for" : "General application"}</p>
+          <h1
+            className="rise mt-4 font-display text-title font-bold text-ink sm:text-[2.25rem] sm:leading-[1.12]"
+            style={{ "--delay": "0.08s" } as React.CSSProperties}
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{job ? "Back to Job Details" : "Back to All Jobs"}</span>
-          </Link>
-        </div>
+            {job ? job.title : "Share your clinical profile"}
+          </h1>
 
-        {/* Position Summary Banner if specific job */}
-        {job && (
-          <div className="bg-navy-950 dark:bg-dark-surface text-white rounded-2xl p-5 sm:p-6 mb-8 border border-navy-800 dark:border-dark-border shadow-md">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-green-400 block mb-1">
-              Applying for Position
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-display">
-              {job.title}
-            </h1>
-            
-            <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-slate-300 dark:text-slate-300">
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-green-400" />
+          {job ? (
+            <ul className="rise mt-6 space-y-3 text-[0.9375rem] text-ink-2" style={{ "--delay": "0.16s" } as React.CSSProperties}>
+              <li className="flex items-center gap-3">
+                <MapPin className="h-4 w-4 text-ink-3" aria-hidden />
                 {job.locationCity}, {job.locationState}
-              </span>
-              <span>•</span>
-              <span>{job.employmentType}</span>
-              <span>•</span>
-              <span>{job.shift}</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Briefcase className="h-4 w-4 text-ink-3" aria-hidden />
+                {job.employmentType}
+              </li>
+              <li className="flex items-center gap-3">
+                <Clock className="h-4 w-4 shrink-0 text-ink-3" aria-hidden />
+                {job.shift}
+              </li>
               {job.payRange && (
-                <>
-                  <span>•</span>
-                  <span className="font-bold text-green-400">{job.payRange}</span>
-                </>
+                <li className="flex items-center gap-3 font-semibold text-ink">
+                  <Wallet className="h-4 w-4 text-brand-ink" aria-hidden />
+                  {job.payRange}
+                </li>
               )}
-            </div>
+            </ul>
+          ) : (
+            <p className="rise mt-4 leading-relaxed text-ink-2" style={{ "--delay": "0.16s" } as React.CSSProperties}>
+              Not seeing the right role? Our coordinators have access to unadvertised hospital requests and upcoming
+              contract blocks.
+            </p>
+          )}
+
+          <div className="mt-8 space-y-4 rounded-3xl border border-line bg-surface p-6 text-sm text-ink-2">
+            <p className="flex gap-3">
+              <UserCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-ink" aria-hidden />A dedicated recruiter reviews
+              every application personally.
+            </p>
+            <p className="flex gap-3">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-ink" aria-hidden />
+              Your resume is never shared without your prior consent.
+            </p>
+            <a href={COMPANY_INFO.phoneHref} className="flex gap-3 font-semibold text-ink hover:text-brand-ink">
+              <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand-ink" aria-hidden />
+              Questions? Call {COMPANY_INFO.phone}
+            </a>
           </div>
-        )}
+        </aside>
 
-        {/* Candidate Application Form */}
-        <ApplicationForm
-          jobId={jobId}
-          jobTitle={jobTitle}
-          defaultSpecialty={defaultSpecialty}
-        />
+        <div className="lg:col-span-8">
+          <ApplicationForm jobId={jobId} jobTitle={jobTitle} defaultSpecialty={defaultSpecialty} />
 
-        {/* Confidentiality & Ethics Reminder */}
-        <div className="mt-8 text-center text-xs text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
-          Ideal Healthcare Staffing does not share candidate resumes or contact information without your prior consent. Review our{" "}
-          <Link href="/privacy-policy" className="text-green-700 dark:text-green-400 underline font-semibold">
-            Privacy Policy
-          </Link>{" "}
-          and Equal Employment Opportunity commitments.
+          <p className="mt-6 text-center text-sm leading-relaxed text-ink-3">
+            Review our{" "}
+            <Link href="/privacy-policy" className="link">
+              Privacy Policy
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy-policy#eeo" className="link">
+              Equal Employment Opportunity
+            </Link>{" "}
+            commitments.
+          </p>
         </div>
-
       </div>
     </div>
   );
