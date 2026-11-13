@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { getJobById } from "@/lib/db";
 import ApplicationForm from "@/components/ApplicationForm";
 import { ArrowLeft, Briefcase, Clock, MapPin, Phone, ShieldCheck, UserCheck, Wallet } from "lucide-react";
@@ -45,7 +46,7 @@ export default async function ApplyPage(props: ApplyPageProps) {
         <aside className="lg:sticky lg:top-28 lg:col-span-4">
           <p className="eyebrow rise">{job ? "Applying for" : "General application"}</p>
           <h1
-            className="rise mt-4 font-display text-title font-bold text-ink sm:text-[2.25rem] sm:leading-[1.12]"
+            className="rise mt-4 font-display text-title font-medium text-ink sm:text-[2.25rem] sm:leading-[1.12]"
             style={{ "--delay": "0.08s" } as React.CSSProperties}
           >
             {job ? job.title : "Share your clinical profile"}
@@ -79,7 +80,18 @@ export default async function ApplyPage(props: ApplyPageProps) {
             </p>
           )}
 
-          <div className="mt-8 space-y-4 rounded-3xl border border-line bg-surface p-6 text-sm text-ink-2">
+          <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-line bg-surface text-sm text-ink-2">
+            {/* Friendly face, desktop only — on mobile the form stays close to the top */}
+            <div className="relative hidden aspect-[4/3] bg-surface-2 lg:block">
+              <Image
+                src="/images/professional-portrait.jpg"
+                alt="Smiling professional woman in a white shirt"
+                fill
+                sizes="400px"
+                className="object-cover object-center"
+              />
+            </div>
+            <div className="space-y-4 p-6">
             <p className="flex gap-3">
               <UserCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-ink" aria-hidden />A dedicated recruiter reviews
               every application personally.
@@ -92,6 +104,7 @@ export default async function ApplyPage(props: ApplyPageProps) {
               <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand-ink" aria-hidden />
               Questions? Call {COMPANY_INFO.phone}
             </a>
+            </div>
           </div>
         </aside>
 

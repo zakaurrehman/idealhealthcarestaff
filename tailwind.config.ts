@@ -1,16 +1,33 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Ideal Healthcare Staffing — design tokens
+ * Ideal Healthcare Staffing — design tokens ("Coastal Care" palette)
  *
- * Semantic colours (canvas, surface, ink, brand, accent…) are driven by CSS
- * variables defined in globals.css so light/dark themes switch in one place.
- * Brand logic: green = clinicians & careers, navy/azure = facilities & trust.
+ *  Teal   — primary. Clinical calm, trust, cleanliness. Bridges the logo's
+ *           navy and green so the mark still sits naturally on the site.
+ *  Coral  — accent. Human warmth and energy; used sparingly for emphasis.
+ *  Ivory  — warm neutrals instead of sterile white: premium, hospitable.
+ *  Spruce — deep teal-black for dark sections and the footer.
  *
- * The legacy `navy`, `green`, `teal`, `warm` and `dark` scales are kept so the
- * admin portal continues to render unchanged.
+ * Semantic colours are CSS variables (globals.css) so light/dark themes switch
+ * in one place. Legacy `navy` / `green` / `teal` / `dark` scales are kept and
+ * re-pointed at the new palette so the admin portal inherits the new look.
  */
 const withAlpha = (variable: string) => `rgb(var(${variable}) / <alpha-value>)`;
+
+const tealScale = {
+  50: "#effaf9",
+  100: "#d6f0ef",
+  200: "#b0e2e1",
+  300: "#7fcdcd",
+  400: "#43b1b4",
+  500: "#1496a0",
+  600: "#0e6e78", // primary — 5.9:1 with white text
+  700: "#0b5961",
+  800: "#0d4950",
+  900: "#0e3d43",
+  950: "#062226",
+};
 
 export default {
   darkMode: "class",
@@ -47,71 +64,75 @@ export default {
         },
         accent: {
           DEFAULT: withAlpha("--accent"),
+          ink: withAlpha("--accent-ink"),
           soft: withAlpha("--accent-soft"),
         },
 
-        // ── Fixed brand scales (logo navy + logo green) ─────────────
+        // ── Fixed palette scales ────────────────────────────────────
+        spruce: {
+          DEFAULT: "#0b2a31",
+          50: "#eef5f5",
+          700: "#14424b",
+          800: "#0f353d",
+          900: "#0b2a31",
+          950: "#071d22",
+        },
+        coral: {
+          50: "#fdf3ef",
+          100: "#fce4db",
+          200: "#f8c6b4",
+          300: "#f3a284",
+          400: "#ec8160",
+          500: "#d9684a",
+          600: "#b0482c",
+          700: "#8f3a24",
+        },
+        ivory: {
+          50: "#fdfcfa",
+          100: "#faf8f4",
+          200: "#f3efe8",
+          300: "#e8e2d8",
+          400: "#d6cec1",
+        },
+        teal: tealScale,
+        // Legacy aliases (admin portal) mapped onto the new palette
+        green: tealScale,
         navy: {
-          50: "#f0f4fa",
-          100: "#dbe5f5",
-          200: "#bcd0ee",
-          300: "#8cb3e2",
-          400: "#5591d3",
-          500: "#2d70c0",
-          600: "#1f56a3",
-          700: "#164182",
-          800: "#102f61",
-          900: "#0b2046",
-          950: "#061530",
-        },
-        green: {
-          50: "#f1faee",
-          100: "#e0f4d9",
-          200: "#c2e9b5",
-          300: "#98d986",
-          400: "#69c656",
-          500: "#43b02a", // official logo green (decorative / large use)
-          600: "#2e8520", // AA-compliant with white text
-          700: "#256c1a",
-          800: "#205718",
-          900: "#1c4816",
-          950: "#0c2809",
-        },
-        teal: {
-          50: "#f1faee",
-          100: "#e0f4d9",
-          200: "#c2e9b5",
-          300: "#98d986",
-          400: "#69c656",
-          500: "#43b02a",
-          600: "#2e8520",
-          700: "#256c1a",
-          800: "#205718",
-          900: "#1c4816",
+          50: "#eef5f5",
+          100: "#d5e6e7",
+          200: "#aecfd1",
+          300: "#7eb0b4",
+          400: "#4f8d93",
+          500: "#2f6f76",
+          600: "#1f5a61",
+          700: "#174a51",
+          800: "#123c42",
+          900: "#0f353d",
+          950: "#0b2a31",
         },
         warm: {
-          50: "#fcfcfb",
-          100: "#f6f6f4",
-          200: "#ededeb",
-          300: "#dededb",
+          50: "#fdfcfa",
+          100: "#faf8f4",
+          200: "#f3efe8",
+          300: "#e8e2d8",
         },
         dark: {
-          bg: "#060E1C",
-          surface: "#0B182C",
-          card: "#10213A",
-          border: "#1E3252",
-          subtle: "#162744",
+          bg: "#09161a",
+          surface: "#0e1f24",
+          card: "#14292f",
+          border: "#213a41",
+          subtle: "#1a3238",
         },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
-        display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "Cambria", "serif"],
       },
       fontSize: {
-        // Fluid type scale
-        "display-xl": ["clamp(2.5rem, 1.35rem + 3.9vw, 4rem)", { lineHeight: "1.04", letterSpacing: "-0.035em" }],
-        "display": ["clamp(2.1rem, 1.3rem + 2.6vw, 3.25rem)", { lineHeight: "1.08", letterSpacing: "-0.03em" }],
-        "title": ["clamp(1.5rem, 1.15rem + 1.1vw, 2rem)", { lineHeight: "1.18", letterSpacing: "-0.02em" }],
+        // Fluid type scale — tuned for the serif display face
+        "display-xl": ["clamp(2.75rem, 1.6rem + 4vw, 4.75rem)", { lineHeight: "1.02", letterSpacing: "-0.025em" }],
+        "display": ["clamp(2.25rem, 1.5rem + 2.6vw, 3.5rem)", { lineHeight: "1.06", letterSpacing: "-0.02em" }],
+        "title": ["clamp(1.625rem, 1.25rem + 1.1vw, 2.125rem)", { lineHeight: "1.15", letterSpacing: "-0.015em" }],
         "lead": ["clamp(1.0625rem, 1rem + 0.3vw, 1.25rem)", { lineHeight: "1.65" }],
       },
       maxWidth: {
@@ -121,9 +142,9 @@ export default {
         "4xl": "2rem",
       },
       boxShadow: {
-        soft: "0 1px 2px rgb(10 31 68 / 0.04), 0 8px 24px -12px rgb(10 31 68 / 0.12)",
-        lift: "0 2px 4px rgb(10 31 68 / 0.04), 0 24px 48px -20px rgb(10 31 68 / 0.22)",
-        float: "0 12px 40px -12px rgb(10 31 68 / 0.28)",
+        soft: "0 1px 2px rgb(15 42 51 / 0.04), 0 10px 30px -14px rgb(15 42 51 / 0.14)",
+        lift: "0 2px 6px rgb(15 42 51 / 0.05), 0 28px 56px -24px rgb(15 42 51 / 0.28)",
+        float: "0 14px 40px -14px rgb(15 42 51 / 0.32)",
       },
       keyframes: {
         fadeIn: {
@@ -134,10 +155,15 @@ export default {
           "0%": { opacity: "0", transform: "translateY(16px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "fade-in": "fadeIn 0.4s ease-out both",
         "fade-in-up": "fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both",
+        marquee: "marquee 48s linear infinite",
       },
     },
   },

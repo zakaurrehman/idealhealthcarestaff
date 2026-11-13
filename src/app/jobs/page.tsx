@@ -61,7 +61,7 @@ export default async function JobsPage(props: JobsPageProps) {
             <div className="max-w-2xl">
               <p className="eyebrow rise">Verified hospital orders</p>
               <h1
-                className="rise mt-4 font-display text-display font-bold text-ink"
+                className="rise mt-4 font-display text-display font-medium text-ink"
                 style={{ "--delay": "0.08s" } as React.CSSProperties}
               >
                 Healthcare job opportunities
@@ -119,7 +119,7 @@ export default async function JobsPage(props: JobsPageProps) {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-2 text-ink-3">
               <SearchX className="h-7 w-7" aria-hidden />
             </div>
-            <h2 className="mt-5 font-display text-xl font-bold text-ink">No matching clinical jobs found</h2>
+            <h2 className="mt-5 font-display text-xl font-medium text-ink">No matching clinical jobs found</h2>
             <p className="mt-2 leading-relaxed text-ink-3">
               We couldn&apos;t find positions matching your criteria. Try adjusting or resetting your specialty and
               location filters.
@@ -136,35 +136,38 @@ export default async function JobsPage(props: JobsPageProps) {
         )}
 
         {/* Recruiter banner — image and copy side by side, never overlapping */}
-        <Reveal className="mt-20 overflow-hidden rounded-[2rem] bg-navy-950 text-white">
+        <Reveal className="mt-20 overflow-hidden rounded-[2.25rem] bg-spruce text-white">
           <div className="grid lg:grid-cols-12">
             <div className="relative aspect-[16/10] lg:col-span-5 lg:aspect-auto">
               <Image
-                src="/images/nurse-portrait-teal.jpg"
-                alt="Smiling nurse in teal scrubs"
+                src="/images/care-coordinator.jpg"
+                alt="Smiling professional with glasses in a bright modern office"
                 fill
                 sizes="(min-width: 1024px) 520px, 100vw"
-                className="object-cover object-[50%_30%]"
+                className="object-cover object-[62%_30%]"
               />
             </div>
-            <div className="p-8 sm:p-12 lg:col-span-7 lg:p-14">
+            <div className="relative p-8 sm:p-12 lg:col-span-7 lg:p-14">
+              <div className="absolute inset-0 bg-dots-light" aria-hidden />
+              <div className="relative">
               <p className="eyebrow eyebrow-on-dark">Looking for something specific?</p>
-              <h2 className="mt-4 font-display text-title font-bold text-white sm:text-[2.25rem] sm:leading-[1.12]">
-                Speak directly with an Ideal Healthcare recruitment specialist.
+              <h2 className="mt-5 font-display text-title font-medium text-white sm:text-[2.5rem] sm:leading-[1.1]">
+                Speak directly with an Ideal Healthcare <span className="em em-on-dark">recruitment</span> specialist.
               </h2>
-              <p className="mt-4 max-w-xl leading-relaxed text-slate-300">
+              <p className="mt-5 max-w-xl leading-relaxed text-spruce-50/75">
                 Our clinical placement coordinators maintain direct access to unadvertised hospital requests, rapid
                 response units, and upcoming contract blocks across leading medical networks.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/apply/general" className="btn-accent group">
+                <Link href="/apply/general" className="btn-light group">
                   Submit a general profile
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
                 <a href={COMPANY_INFO.phoneHref} className="btn-on-dark">
-                  <Phone className="h-4 w-4 text-green-400" aria-hidden />
+                  <Phone className="h-4 w-4 text-coral-300" aria-hidden />
                   Call {COMPANY_INFO.phone}
                 </a>
+              </div>
               </div>
             </div>
           </div>

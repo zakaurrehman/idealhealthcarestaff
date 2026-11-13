@@ -17,7 +17,7 @@ export default function PulseLine({ className = "" }: { className?: string }) {
       aria-hidden
       fill="none"
     >
-      <path d={d} stroke="currentColor" strokeOpacity="0.12" strokeWidth="1.5" />
+      <path d={d} stroke="currentColor" strokeOpacity="0.1" strokeWidth="1.5" />
       <motion.path
         d={d}
         stroke="url(#pulse-gradient)"
@@ -31,10 +31,10 @@ export default function PulseLine({ className = "" }: { className?: string }) {
       />
       <defs>
         <linearGradient id="pulse-gradient" x1="0" x2="1200" y1="0" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#43B02A" stopOpacity="0" />
-          <stop offset="0.35" stopColor="#43B02A" stopOpacity="0.9" />
-          <stop offset="0.75" stopColor="#69C656" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#69C656" stopOpacity="0" />
+          <stop offset="0" stopColor="#7FCDCD" stopOpacity="0" />
+          <stop offset="0.35" stopColor="#7FCDCD" stopOpacity="0.9" />
+          <stop offset="0.75" stopColor="#F3A284" stopOpacity="0.9" />
+          <stop offset="1" stopColor="#F3A284" stopOpacity="0" />
         </linearGradient>
       </defs>
     </svg>

@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
           </nav>
           <p className="eyebrow rise mt-8">Healthcare staffing data protection</p>
           <h1
-            className="rise mt-4 max-w-3xl font-display text-display font-bold text-ink"
+            className="rise mt-4 max-w-3xl font-display text-display font-medium text-ink"
             style={{ "--delay": "0.08s" } as React.CSSProperties}
           >
             Privacy policy &amp; compliance terms
@@ -68,7 +68,7 @@ export default function PrivacyPolicyPage() {
 
         <article className="max-w-prose space-y-12 text-[1.0625rem] leading-relaxed text-ink-2 lg:col-span-9">
           <section id="commitment" className="space-y-4">
-            <h2 className="font-display text-2xl font-bold text-ink">1. Commitment to clinical candidate privacy</h2>
+            <h2 className="font-display text-2xl font-medium text-ink">1. Commitment to clinical candidate privacy</h2>
             <p>
               Ideal Healthcare Staffing (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
               respects the confidentiality of healthcare professionals and institutional facility partners. This
@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section id="information" className="space-y-4">
-            <h2 className="font-display text-2xl font-bold text-ink">2. Information we collect</h2>
+            <h2 className="font-display text-2xl font-medium text-ink">2. Information we collect</h2>
             <p>
               To effectively match clinicians with hospital assignments and verify primary-source qualifications, we
               collect:
@@ -94,7 +94,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section id="storage" className="space-y-4">
-            <h2 className="font-display text-2xl font-bold text-ink">
+            <h2 className="font-display text-2xl font-medium text-ink">
               3. Private resume storage &amp; candidate representation
             </h2>
             <p>
@@ -107,7 +107,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section id="eeo" className="space-y-4">
-            <h2 className="font-display text-2xl font-bold text-ink">4. Equal Opportunity Employer (EOE) policy</h2>
+            <h2 className="font-display text-2xl font-medium text-ink">4. Equal Opportunity Employer (EOE) policy</h2>
             <p>
               Ideal Healthcare Staffing is an Equal Opportunity Employer. We maintain a zero-tolerance policy against
               unlawful discrimination or harassment in recruitment, placement, pay rates, or terms of assignment based
@@ -117,7 +117,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section id="credentialing" className="space-y-4">
-            <h2 className="font-display text-2xl font-bold text-ink">
+            <h2 className="font-display text-2xl font-medium text-ink">
               5. Primary source verification &amp; compliance standards
             </h2>
             <p>
@@ -129,7 +129,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section id="communication" className="space-y-4">
-            <h2 className="font-display text-2xl font-bold text-ink">6. Communication &amp; unsubscribe rights</h2>
+            <h2 className="font-display text-2xl font-medium text-ink">6. Communication &amp; unsubscribe rights</h2>
             <p>
               By submitting an application or subscribing to job alerts, you consent to receive direct communications
               regarding clinical opportunities via email, phone, or SMS. You may opt out or unsubscribe from
@@ -139,7 +139,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section id="contact" className="space-y-4">
-            <h2 className="font-display text-2xl font-bold text-ink">7. Contact our compliance office</h2>
+            <h2 className="font-display text-2xl font-medium text-ink">7. Contact our compliance office</h2>
             <p>
               For questions regarding candidate data protection, state privacy rights (such as CCPA requests), or
               credentialing verification, please contact:

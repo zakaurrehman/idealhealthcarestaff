@@ -35,7 +35,7 @@ export default function FacilityInquiryForm() {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand-ink">
           <CheckCircle2 className="h-7 w-7" aria-hidden />
         </div>
-        <h3 className="mt-5 font-display text-2xl font-bold text-ink">Staffing inquiry received</h3>
+        <h3 className="mt-5 font-display text-2xl font-medium text-ink">Staffing inquiry received</h3>
         <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink-2">{successData.message}</p>
         <p className="mt-6 inline-block rounded-xl bg-surface-2 px-4 py-2.5 font-mono text-sm text-ink-2">
           Reference: <span className="font-semibold text-ink">{successData.id}</span>
@@ -56,7 +56,7 @@ export default function FacilityInquiryForm() {
       aria-describedby="facility-form-intro"
     >
       <div className="border-b border-line pb-6">
-        <h3 className="font-display text-2xl font-bold text-ink">Request staffing support</h3>
+        <h3 className="font-display text-2xl font-medium text-ink">Request staffing support</h3>
         <p id="facility-form-intro" className="mt-2 text-[0.9375rem] leading-relaxed text-ink-3">
           Submit your staffing requirements to our clinical recruitment coordinators. We provide verified
           candidates within 24 to 48 hours for emergency surge needs. Fields marked * are required.

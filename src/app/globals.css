@@ -3,55 +3,58 @@
 @tailwind utilities;
 
 /* ====================================================================
-   DESIGN TOKENS
-   Colours are RGB triplets so Tailwind opacity modifiers work
-   (e.g. bg-brand/10). Contrast targets: WCAG AA for all text.
+   DESIGN TOKENS — "Coastal Care"
+   Teal (trust, clinical calm) · Coral (warmth, energy) · Warm ivory
+   neutrals (premium, hospitable). RGB triplets so Tailwind opacity
+   modifiers work (e.g. bg-brand/10). All text pairs meet WCAG AA.
    ==================================================================== */
 @layer base {
   :root {
-    --canvas: 246 248 251;        /* #F6F8FB page background */
+    --canvas: 250 248 244;        /* #FAF8F4 warm ivory page */
     --surface: 255 255 255;       /* cards, panels */
-    --surface-2: 239 243 248;     /* muted panels, inputs */
-    --line: 226 232 240;          /* hairlines */
-    --line-strong: 203 213 225;
+    --surface-2: 243 239 232;     /* #F3EFE8 sand — muted panels */
+    --line: 232 226 216;          /* #E8E2D8 hairlines */
+    --line-strong: 214 206 193;   /* #D6CEC1 */
 
-    --ink: 10 31 68;              /* #0A1F44 headings — logo navy */
-    --ink-2: 51 65 85;            /* #334155 body */
-    --ink-3: 92 107 128;          /* #5C6B80 meta (4.9:1 on white) */
+    --ink: 15 42 51;              /* #0F2A33 deep spruce ink */
+    --ink-2: 55 74 82;            /* #374A52 body (9.3:1) */
+    --ink-3: 91 109 116;          /* #5B6D74 meta (5.0:1 on ivory) */
 
-    --brand: 46 133 32;           /* #2E8520 buttons (4.7:1 w/ white) */
-    --brand-hover: 37 108 26;     /* #256C1A */
-    --brand-bright: 67 176 42;    /* #43B02A logo green — decorative */
-    --brand-soft: 234 246 229;    /* #EAF6E5 tints */
-    --brand-ink: 37 108 26;       /* green text on light */
+    --brand: 14 110 120;          /* #0E6E78 teal — buttons (5.9:1 w/ white) */
+    --brand-hover: 11 89 97;      /* #0B5961 */
+    --brand-bright: 20 150 160;   /* #1496A0 decorative */
+    --brand-soft: 226 242 241;    /* #E2F2F1 tints */
+    --brand-ink: 11 95 104;       /* #0B5F68 teal text (6.9:1) */
     --on-brand: 255 255 255;
 
-    --accent: 31 86 163;          /* #1F56A3 facility / trust azure */
-    --accent-soft: 232 240 251;
+    --accent: 217 104 74;         /* #D9684A coral — decorative / large */
+    --accent-ink: 176 72 44;      /* #B0482C coral text (5.2:1) */
+    --accent-soft: 252 236 229;   /* #FCECE5 */
 
     color-scheme: light;
   }
 
   .dark {
-    --canvas: 6 14 28;            /* #060E1C */
-    --surface: 11 24 44;          /* #0B182C */
-    --surface-2: 16 33 58;        /* #10213A */
-    --line: 30 50 82;             /* #1E3252 */
-    --line-strong: 45 70 110;
+    --canvas: 9 22 26;            /* #09161A */
+    --surface: 14 31 36;          /* #0E1F24 */
+    --surface-2: 20 41 47;        /* #14292F */
+    --line: 33 58 65;             /* #213A41 */
+    --line-strong: 49 79 87;
 
-    --ink: 241 245 249;
-    --ink-2: 203 213 225;
-    --ink-3: 148 163 184;
+    --ink: 240 244 243;
+    --ink-2: 200 212 214;
+    --ink-3: 146 165 170;
 
-    --brand: 86 196 60;           /* #56C43C */
-    --brand-hover: 112 210 88;
-    --brand-bright: 101 208 76;
-    --brand-soft: 18 46 28;
-    --brand-ink: 127 214 106;
-    --on-brand: 6 16 31;          /* navy text on bright green (8.5:1) */
+    --brand: 77 196 196;          /* #4DC4C4 */
+    --brand-hover: 110 212 211;
+    --brand-bright: 90 205 205;
+    --brand-soft: 16 52 56;
+    --brand-ink: 120 214 212;
+    --on-brand: 6 34 38;          /* dark text on bright teal (7.9:1) */
 
-    --accent: 125 172 236;
-    --accent-soft: 17 36 66;
+    --accent: 240 140 110;
+    --accent-ink: 245 160 135;
+    --accent-soft: 58 32 26;
 
     color-scheme: dark;
   }
@@ -66,12 +69,13 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "cv11", "ss01";
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    font-optical-sizing: auto;
+    font-variation-settings: "SOFT" 60, "WONK" 0;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
 
@@ -80,7 +84,7 @@
   }
 
   ::selection {
-    background-color: rgb(var(--brand-bright) / 0.25);
+    background-color: rgb(var(--accent) / 0.22);
     color: rgb(var(--ink));
   }
 
@@ -103,24 +107,36 @@
   }
 
   .section {
-    @apply py-20 sm:py-24 lg:py-28;
+    @apply py-20 sm:py-24 lg:py-32;
   }
 
-  /* Small uppercase label with a short brand rule — replaces pill badges */
+  /* Section label: coral dot + small caps — warm, editorial */
   .eyebrow {
-    @apply inline-flex items-center gap-2.5 text-[0.8125rem] font-semibold uppercase tracking-[0.14em] text-brand-ink;
+    @apply inline-flex items-center gap-2.5 font-sans text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-accent-ink;
   }
   .eyebrow::before {
     content: "";
-    @apply h-px w-6 bg-brand-bright;
+    @apply h-1.5 w-1.5 shrink-0 rounded-full bg-accent;
   }
   .eyebrow-on-dark {
-    @apply text-green-300;
+    @apply text-coral-300;
+  }
+  .eyebrow-on-dark::before {
+    @apply bg-coral-400;
+  }
+
+  /* Italic serif emphasis for a single word in a headline */
+  .em {
+    @apply font-display italic text-brand-ink;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+  }
+  .em-on-dark {
+    @apply text-teal-300;
   }
 
   /* ── Buttons ─────────────────────────────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-[0.9375rem] font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-200 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 font-sans text-[0.9375rem] font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-200 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-lg {
     @apply px-7 py-3.5 text-base;
@@ -129,11 +145,11 @@
     @apply px-4 py-2 text-sm;
   }
 
-  /* Primary action — brand green */
+  /* Primary action — teal */
   .btn-accent {
-    @apply btn bg-brand text-brand-on shadow-[0_6px_20px_-8px_rgb(var(--brand)/0.7)] hover:bg-brand-hover hover:shadow-[0_10px_28px_-10px_rgb(var(--brand)/0.8)];
+    @apply btn bg-brand text-brand-on shadow-[0_8px_22px_-10px_rgb(var(--brand)/0.75)] hover:bg-brand-hover hover:shadow-[0_12px_28px_-10px_rgb(var(--brand)/0.8)];
   }
-  /* Strong neutral — ink navy */
+  /* Strong neutral — ink */
   .btn-primary {
     @apply btn bg-ink text-canvas hover:bg-ink/90;
   }
@@ -141,9 +157,12 @@
   .btn-secondary {
     @apply btn border border-line-strong bg-surface text-ink hover:border-ink/30 hover:bg-surface-2;
   }
-  /* On permanently dark (navy) surfaces */
+  /* On permanently dark (spruce) surfaces */
   .btn-on-dark {
     @apply btn border border-white/20 bg-white/5 text-white hover:border-white/40 hover:bg-white/10;
+  }
+  .btn-light {
+    @apply btn bg-white text-spruce hover:bg-ivory-200;
   }
   .btn-outline-green {
     @apply btn border border-brand/40 bg-brand-soft text-brand-ink hover:border-brand;
@@ -154,17 +173,18 @@
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
   }
   .badge-green,
-  .badge-teal {
-    @apply badge bg-brand-soft text-brand-ink;
-  }
+  .badge-teal,
   .badge-navy {
-    @apply badge bg-accent-soft text-accent;
+    @apply badge bg-brand-soft text-brand-ink;
   }
   .badge-neutral {
     @apply badge bg-surface-2 text-ink-2;
   }
+  .badge-coral {
+    @apply badge bg-accent-soft text-accent-ink;
+  }
   .badge-urgent {
-    @apply badge bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-200 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/25;
+    @apply badge bg-accent-soft text-accent-ink ring-1 ring-inset ring-accent/25;
   }
 
   /* ── Surfaces ────────────────────────────────────────────────── */
@@ -175,7 +195,7 @@
     @apply card p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift sm:p-8;
   }
   .glass-card-navy {
-    @apply rounded-2xl border border-white/10 bg-navy-900/80 p-6 shadow-2xl backdrop-blur-xl;
+    @apply rounded-2xl border border-white/10 bg-spruce-800/80 p-6 shadow-2xl backdrop-blur-xl;
   }
 
   /* ── Forms ───────────────────────────────────────────────────── */
@@ -186,17 +206,17 @@
     @apply mt-1.5 text-xs text-ink-3;
   }
   .field-input {
-    @apply block w-full rounded-xl border border-line-strong bg-surface px-4 py-3 text-[0.9375rem] text-ink shadow-[inset_0_1px_2px_rgb(10_31_68/0.04)] transition-colors placeholder:text-ink-3/80 hover:border-ink/25 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15;
+    @apply block w-full rounded-xl border border-line-strong bg-surface px-4 py-3 text-[0.9375rem] text-ink transition-colors placeholder:text-ink-3/80 hover:border-ink/25 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15;
   }
   select.field-input {
     @apply appearance-none bg-no-repeat pr-10;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235C6B80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235B6D74' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-position: right 0.875rem center;
   }
 
   /* ── Links ───────────────────────────────────────────────────── */
   .link {
-    @apply font-semibold text-brand-ink underline decoration-brand-bright/40 underline-offset-4 transition-colors hover:decoration-brand-bright;
+    @apply font-semibold text-brand-ink underline decoration-brand/30 underline-offset-4 transition-colors hover:decoration-brand;
   }
   .link-arrow {
     @apply inline-flex items-center gap-1.5 font-semibold text-brand-ink transition-colors hover:text-brand-hover;
@@ -214,12 +234,23 @@
 
   /* Faint dotted texture — used once per section at most */
   .bg-dots {
-    background-image: radial-gradient(rgb(var(--ink) / 0.07) 1px, transparent 1px);
+    background-image: radial-gradient(rgb(var(--ink) / 0.08) 1px, transparent 1px);
     background-size: 22px 22px;
   }
   .bg-dots-light {
-    background-image: radial-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px);
+    background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
     background-size: 22px 22px;
+  }
+
+  /* Arch frame — soft, architectural portrait crop */
+  .arch {
+    border-radius: 999px 999px 2rem 2rem;
+  }
+
+  /* Edge fade for horizontal marquees */
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   }
 }
 
@@ -238,7 +269,7 @@
   transition: opacity 0.35s ease;
   background: radial-gradient(
     420px circle at var(--spot-x, 50%) var(--spot-y, 50%),
-    rgb(var(--brand-bright) / 0.12),
+    rgb(var(--brand-bright) / 0.1),
     transparent 60%
   );
   z-index: -1;
@@ -247,7 +278,7 @@
   opacity: 1;
 }
 
-/* Smooth hover lift kept for admin compatibility */
+/* Hover lift kept for admin compatibility */
 .hover-lift {
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -271,6 +302,12 @@
   animation-delay: var(--delay, 0s);
 }
 
+/* Marquee pauses when the visitor hovers or focuses within it */
+.marquee-track:hover,
+.marquee-track:focus-within {
+  animation-play-state: paused;
+}
+
 /* Respect reduced-motion preferences everywhere */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -281,6 +318,9 @@
     transform: none !important;
   }
   .rise {
+    animation: none !important;
+  }
+  .marquee-track {
     animation: none !important;
   }
   *,

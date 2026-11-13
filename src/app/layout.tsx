@@ -1,20 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Figtree, Fraunces } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import MotionProvider from "@/components/motion/MotionProvider";
 
-const inter = Inter({
+// Body & UI: friendly, highly legible humanist sans
+const figtree = Figtree({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const jakarta = Plus_Jakarta_Sans({
+// Display: soft modern serif — premium, warm, unmistakably not a template
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  axes: ["SOFT", "WONK", "opsz"],
   variable: "--font-display",
   display: "swap",
 });
@@ -47,7 +50,7 @@ export const metadata: Metadata = {
       "The Right Professionals. The Right Place. The Right Time.™ Verified travel nursing and healthcare facility staffing solutions.",
     type: "website",
     locale: "en_US",
-    images: [{ url: "/images/hero-clinician.jpg", width: 1200, height: 1800 }],
+    images: [{ url: "/images/hero-nurse.jpg", width: 1400, height: 1479 }],
   },
   robots: {
     index: true,
@@ -57,8 +60,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F6F8FB" },
-    { media: "(prefers-color-scheme: dark)", color: "#060E1C" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF8F4" },
+    { media: "(prefers-color-scheme: dark)", color: "#09161A" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -85,7 +88,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${figtree.variable} ${fraunces.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>

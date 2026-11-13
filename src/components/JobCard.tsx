@@ -8,10 +8,10 @@ interface JobCardProps {
 
 export default function JobCard({ job }: JobCardProps) {
   return (
-    <article className="group relative flex h-full flex-col rounded-3xl border border-line bg-surface p-6 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lift sm:p-7">
+    <article className="group relative flex h-full flex-col rounded-[1.75rem] border border-line bg-surface p-6 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-brand/35 hover:shadow-lift sm:p-7">
       {/* Tags */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="badge-navy">{job.department}</span>
+        <span className="badge-teal">{job.department}</span>
         <span className="badge-neutral">{job.specialty}</span>
         {job.isUrgent && (
           <span className="badge-urgent ml-auto">
@@ -21,11 +21,11 @@ export default function JobCard({ job }: JobCardProps) {
         )}
       </div>
 
-      {/* Title — whole card is clickable via the stretched link */}
-      <h3 className="mt-5 font-display text-xl font-bold leading-snug text-ink sm:text-[1.375rem]">
+      {/* Title — the whole card is clickable via the stretched link */}
+      <h3 className="mt-5 font-display text-[1.375rem] font-medium leading-snug text-ink sm:text-2xl">
         <Link
           href={`/jobs/${job.slug}`}
-          className="after:absolute after:inset-0 after:rounded-3xl focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand-bright"
+          className="after:absolute after:inset-0 after:rounded-[1.75rem] focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand-bright"
         >
           {job.title}
         </Link>
@@ -35,7 +35,7 @@ export default function JobCard({ job }: JobCardProps) {
       <dl className="mt-4 grid gap-2 text-sm text-ink-2">
         <div className="flex items-center gap-2.5">
           <dt className="sr-only">Location</dt>
-          <MapPin className="h-4 w-4 shrink-0 text-ink-3" aria-hidden />
+          <MapPin className="h-4 w-4 shrink-0 text-accent" aria-hidden />
           <dd className="font-medium text-ink">
             {job.locationCity}, {job.locationState}
           </dd>
@@ -63,7 +63,7 @@ export default function JobCard({ job }: JobCardProps) {
           <p className="text-xs font-medium uppercase tracking-wider text-ink-3">
             {job.payRange ? "Estimated pay" : "Compensation"}
           </p>
-          <p className="mt-1 font-display text-lg font-bold text-ink">{job.payRange || "Competitive rate"}</p>
+          <p className="mt-1 font-display text-xl font-medium text-ink">{job.payRange || "Competitive rate"}</p>
         </div>
 
         <div className="relative z-10 flex items-center gap-2">
@@ -71,7 +71,7 @@ export default function JobCard({ job }: JobCardProps) {
             Apply now
           </Link>
           <span
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-3 transition-colors group-hover:border-brand/40 group-hover:text-brand-ink"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-3 transition-colors group-hover:border-brand/40 group-hover:bg-brand-soft group-hover:text-brand-ink"
             aria-hidden
           >
             <ArrowUpRight className="h-4 w-4" />

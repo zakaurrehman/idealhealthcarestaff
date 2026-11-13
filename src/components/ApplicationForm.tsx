@@ -86,7 +86,7 @@ export default function ApplicationForm({ jobId, jobTitle, defaultSpecialty }: A
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft text-brand-ink">
           <CheckCircle2 className="h-8 w-8" aria-hidden />
         </div>
-        <h2 className="mt-5 font-display text-2xl font-bold text-ink">Application received</h2>
+        <h2 className="mt-5 font-display text-2xl font-medium text-ink">Application received</h2>
         <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink-2">
           {successData.isPersisted
             ? "Thank you for applying. Your application has been securely recorded in our clinical database. A dedicated clinical recruiter will review your credentials and contact you directly."
@@ -110,7 +110,7 @@ export default function ApplicationForm({ jobId, jobTitle, defaultSpecialty }: A
   return (
     <form onSubmit={onSubmit} className="rounded-[1.75rem] border border-line bg-surface p-6 shadow-soft sm:p-10">
       <div className="border-b border-line pb-6">
-        <h2 className="font-display text-2xl font-bold text-ink">Candidate application</h2>
+        <h2 className="font-display text-2xl font-medium text-ink">Candidate application</h2>
         <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-3">
           Fields marked * are required. Your information is processed under confidential healthcare staffing privacy
           safeguards.

@@ -57,7 +57,7 @@ export default function JobAlertModal({ isOpen, onClose }: { isOpen: boolean; on
             aria-label="Close dialog"
             tabIndex={-1}
             onClick={onClose}
-            className="absolute inset-0 cursor-default bg-navy-950/60 backdrop-blur-sm"
+            className="absolute inset-0 cursor-default bg-spruce/60 backdrop-blur-sm"
           />
 
           <motion.div
@@ -84,7 +84,7 @@ export default function JobAlertModal({ isOpen, onClose }: { isOpen: boolean; on
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-soft text-brand-ink">
                 <Bell className="h-6 w-6" aria-hidden />
               </span>
-              <h2 id="job-alert-title" className="mt-5 font-display text-xl font-bold text-ink">
+              <h2 id="job-alert-title" className="mt-5 font-display text-xl font-medium text-ink">
                 Clinical job alerts
               </h2>
               <p id="job-alert-desc" className="mt-1.5 text-sm leading-relaxed text-ink-3">

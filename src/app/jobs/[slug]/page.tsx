@@ -48,7 +48,7 @@ export const revalidate = 60;
 function DetailList({ title, items }: { title: string; items: string[] }) {
   return (
     <section className="border-t border-line pt-8">
-      <h2 className="font-display text-xl font-bold text-ink">{title}</h2>
+      <h2 className="font-display text-xl font-medium text-ink">{title}</h2>
       <ul className="mt-5 space-y-3.5">
         {items.map((item, idx) => (
           <li key={idx} className="flex gap-3 leading-relaxed text-ink-2">
@@ -133,7 +133,7 @@ export default async function JobDetailPage(props: JobDetailPageProps) {
           </div>
 
           <h1
-            className="rise mt-5 max-w-4xl font-display text-display font-bold text-ink"
+            className="rise mt-5 max-w-4xl font-display text-display font-medium text-ink"
             style={{ "--delay": "0.08s" } as React.CSSProperties}
           >
             {job.title}
@@ -162,7 +162,7 @@ export default async function JobDetailPage(props: JobDetailPageProps) {
         {/* Main content */}
         <div className="space-y-8 lg:col-span-8">
           <Reveal>
-            <h2 className="font-display text-xl font-bold text-ink">Role overview</h2>
+            <h2 className="font-display text-xl font-medium text-ink">Role overview</h2>
             <p className="mt-4 max-w-prose text-lead text-ink-2">{job.description}</p>
           </Reveal>
 
@@ -189,7 +189,7 @@ export default async function JobDetailPage(props: JobDetailPageProps) {
             {job.payRange && (
               <div className="border-b border-line pb-6">
                 <p className="text-xs font-medium uppercase tracking-wider text-ink-3">Estimated compensation</p>
-                <p className="mt-1.5 font-display text-[1.75rem] font-extrabold leading-tight tracking-tight text-ink">{job.payRange}</p>
+                <p className="mt-1.5 font-display text-[1.75rem] font-medium leading-tight tracking-tight text-ink">{job.payRange}</p>
                 <p className="mt-2 text-sm leading-relaxed text-ink-3">
                   Includes taxable hourly base wage plus non-taxed housing &amp; meals stipends for eligible travelers.
                 </p>
@@ -197,7 +197,7 @@ export default async function JobDetailPage(props: JobDetailPageProps) {
             )}
 
             <div className={job.payRange ? "pt-6" : ""}>
-              <h2 className="font-display text-lg font-bold text-ink">Interested in this opening?</h2>
+              <h2 className="font-display text-lg font-medium text-ink">Interested in this opening?</h2>
               <p className="mt-2 text-sm leading-relaxed text-ink-3">
                 Submit your profile in under 2 minutes. A clinical recruitment specialist will review your
                 credentials and discuss placement.
@@ -236,7 +236,7 @@ export default async function JobDetailPage(props: JobDetailPageProps) {
         <section className="border-t border-line bg-surface">
           <div className="container-page py-16">
             <div className="flex flex-wrap items-end justify-between gap-4">
-              <h2 className="font-display text-title font-bold text-ink">Similar clinical positions</h2>
+              <h2 className="font-display text-title font-medium text-ink">Similar clinical positions</h2>
               <Link href="/jobs" className="link-arrow group text-sm">
                 All jobs
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

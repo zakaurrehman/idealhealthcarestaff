@@ -107,26 +107,31 @@ export default function FacilitiesPage() {
   return (
     <>
       {/* ================================================================
-          HERO — navy marks the facility (B2B) side of the brand
+          HERO — deep spruce marks the facility (B2B) side of the brand
           ================================================================ */}
-      <section className="relative overflow-hidden bg-navy-950 text-white">
-        <div className="absolute inset-0 bg-dots-light opacity-50" aria-hidden />
+      <section className="px-3 pt-3 sm:px-4">
+       <div className="relative mx-auto max-w-[90rem] overflow-hidden rounded-[2.25rem] bg-spruce text-white">
+        <div className="absolute inset-0 bg-dots-light" aria-hidden />
         <div
-          className="absolute -left-32 top-1/3 h-[28rem] w-[28rem] rounded-full bg-green-500/10 blur-[120px]"
+          className="absolute -left-32 top-1/3 h-[28rem] w-[28rem] rounded-full bg-teal-400/15 blur-[120px]"
+          aria-hidden
+        />
+        <div
+          className="absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-coral-400/10 blur-[110px]"
           aria-hidden
         />
 
         <div className="container-page relative grid items-center gap-14 py-16 sm:py-20 lg:grid-cols-12 lg:gap-12 lg:py-24">
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-6">
             <p className="eyebrow eyebrow-on-dark rise">Hospital &amp; facility workforce solutions</p>
             <h1
-              className="rise mt-6 font-display text-display-xl font-extrabold text-white"
+              className="rise mt-6 font-display text-display-xl font-medium text-white"
               style={{ "--delay": "0.1s" } as React.CSSProperties}
             >
-              Dependable staffing that protects patient care continuity.
+              Dependable staffing that protects patient <span className="em em-on-dark">care</span> continuity.
             </h1>
             <p
-              className="rise mt-6 max-w-xl text-lead text-slate-300"
+              className="rise mt-6 max-w-xl text-lead text-spruce-50/75"
               style={{ "--delay": "0.25s" } as React.CSSProperties}
             >
               Ideal Healthcare Staffing delivers pre-screened, primary-source verified travel nurses, allied
@@ -136,57 +141,64 @@ export default function FacilitiesPage() {
               className="rise mt-9 flex flex-col gap-3 sm:flex-row"
               style={{ "--delay": "0.4s" } as React.CSSProperties}
             >
-              <a href="#inquiry-form" className="btn-accent btn-lg group">
+              <a href="#inquiry-form" className="btn-light btn-lg group">
                 Request Staffing Coverage
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
               <a href={COMPANY_INFO.phoneHref} className="btn-on-dark btn-lg">
-                <Phone className="h-4 w-4 text-green-400" aria-hidden />
+                <Phone className="h-4 w-4 text-coral-300" aria-hidden />
                 Call {COMPANY_INFO.phone}
               </a>
             </div>
             <ul
-              className="rise mt-12 grid gap-4 border-t border-white/10 pt-8 text-sm text-slate-300 sm:grid-cols-3"
+              className="rise mt-12 grid gap-4 border-t border-white/10 pt-8 text-sm text-spruce-50/80 sm:grid-cols-3"
               style={{ "--delay": "0.55s" } as React.CSSProperties}
             >
               <li className="flex items-center gap-2.5">
-                <ShieldCheck className="h-5 w-5 shrink-0 text-green-400" aria-hidden />
+                <ShieldCheck className="h-5 w-5 shrink-0 text-teal-300" aria-hidden />
                 Primary-source verified
               </li>
               <li className="flex items-center gap-2.5">
-                <Clock className="h-5 w-5 shrink-0 text-green-400" aria-hidden />
+                <Clock className="h-5 w-5 shrink-0 text-teal-300" aria-hidden />
                 Responsive coordinators
               </li>
               <li className="flex items-center gap-2.5">
-                <MapPin className="h-5 w-5 shrink-0 text-green-400" aria-hidden />
+                <MapPin className="h-5 w-5 shrink-0 text-teal-300" aria-hidden />
                 Los Angeles &amp; nationwide
               </li>
             </ul>
           </div>
 
+          {/* Photo stays in its own frame; the caption sits below it, never on faces */}
           <div
-            className="rise relative mx-auto w-full max-w-md lg:col-span-5 lg:max-w-none"
+            className="rise relative lg:col-span-6"
             style={{ "--delay": "0.2s", "--rise": "32px" } as React.CSSProperties}
           >
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] ring-1 ring-white/10">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] ring-1 ring-white/10">
               <Image
-                src="/images/care-team-imaging.jpg"
-                alt="Clinician in a white coat discussing a patient's imaging results with a colleague"
+                src="/images/nurse-clinical-care.jpg"
+                alt="Nurse in red scrubs taking a patient's blood pressure in a bright clinic room"
                 fill
                 priority
-                sizes="(min-width: 1024px) 480px, (min-width: 640px) 448px, 100vw"
-                className="object-cover object-[74%_30%]"
+                sizes="(min-width: 1024px) 600px, 100vw"
+                className="object-cover object-[50%_35%]"
               />
             </div>
-            <div className="relative mt-4 rounded-2xl border border-white/10 bg-navy-900/95 p-5 shadow-2xl backdrop-blur sm:absolute sm:-bottom-6 sm:left-8 sm:right-8 sm:mt-0">
-              <p className="font-display font-semibold text-white">Adaptive workforce partnerships</p>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
-                From single traveler placements to multi-unit census coverage, matched to your exact clinical and
-                shift requirements.
-              </p>
+            <div className="mt-4 flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-coral-400/15 text-coral-300">
+                <HeartPulse className="h-5 w-5" aria-hidden />
+              </span>
+              <div>
+                <p className="font-display text-lg font-medium text-white">Adaptive workforce partnerships</p>
+                <p className="mt-1 text-sm leading-relaxed text-spruce-50/70">
+                  From single traveler placements to multi-unit census coverage, matched to your exact clinical and
+                  shift requirements.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+       </div>
       </section>
 
       {/* ================================================================
@@ -203,11 +215,11 @@ export default function FacilitiesPage() {
           <Stagger className="mt-14 grid gap-6 lg:grid-cols-3" as="ul">
             {SERVICES.map(({ icon: Icon, ...svc }) => (
               <StaggerItem as="li" key={svc.title} className="h-full">
-                <SpotlightCard className="flex h-full flex-col rounded-3xl border border-line bg-surface p-7 transition-colors duration-300 hover:border-brand/40 sm:p-8">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                <SpotlightCard className="flex h-full flex-col rounded-[1.75rem] border border-line bg-surface p-7 transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-brand/35 sm:p-8">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-soft text-brand-ink">
                     <Icon className="h-6 w-6" aria-hidden />
                   </span>
-                  <h3 className="mt-6 font-display text-xl font-bold text-ink">{svc.title}</h3>
+                  <h3 className="mt-6 font-display text-[1.375rem] font-medium text-ink">{svc.title}</h3>
                   <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-2">{svc.description}</p>
                   <ul className="mt-6 space-y-3 text-sm text-ink-2">
                     {svc.points.map((p) => (
@@ -266,7 +278,7 @@ export default function FacilitiesPage() {
                     ["Profiles presented", "Within 24–48 hours for emergency surge needs."],
                   ].map(([title, text], i) => (
                     <li key={title} className="flex gap-4">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft font-display text-sm font-bold text-brand-ink">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft font-display text-sm font-medium text-brand-ink">
                         {i + 1}
                       </span>
                       <span>
@@ -281,7 +293,7 @@ export default function FacilitiesPage() {
                   <p className="text-sm text-ink-3">Prefer to speak with a coordinator?</p>
                   <a
                     href={COMPANY_INFO.phoneHref}
-                    className="mt-2 inline-flex items-center gap-2 font-display text-xl font-bold text-ink hover:text-brand-ink"
+                    className="mt-2 inline-flex items-center gap-2 font-display text-xl font-medium text-ink hover:text-brand-ink"
                   >
                     <Phone className="h-5 w-5 text-brand-ink" aria-hidden />
                     {COMPANY_INFO.phone}

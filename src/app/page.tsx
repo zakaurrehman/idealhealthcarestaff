@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   Activity,
   ArrowRight,
@@ -17,6 +16,8 @@ import {
 import { getJobs } from "@/lib/db";
 import JobCard from "@/components/JobCard";
 import HomeHero from "@/components/home/HomeHero";
+import AudienceTabs from "@/components/home/AudienceTabs";
+import SpecialtyMarquee from "@/components/home/SpecialtyMarquee";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import ProcessSteps from "@/components/ui/ProcessSteps";
@@ -121,14 +122,14 @@ export default async function HomePage() {
       <HomeHero />
 
       {/* ================================================================
-          SEARCH + KEY FACTS
+          SEARCH · SPECIALTY MARQUEE · KEY FACTS
           ================================================================ */}
-      <section aria-labelledby="search-heading" className="relative z-10 -mt-14 lg:-mt-20">
+      <section aria-labelledby="search-heading" className="relative z-10 -mt-16 lg:-mt-24">
         <div className="container-page">
-          <Reveal className="rounded-[1.75rem] border border-line bg-surface p-5 shadow-lift sm:p-7">
-            <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 id="search-heading" className="font-display text-lg font-bold text-ink">
-                Search hospital &amp; clinical openings
+          <Reveal className="rounded-[2rem] border border-line bg-surface p-5 shadow-lift sm:p-8">
+            <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="search-heading" className="font-display text-2xl font-medium text-ink">
+                Find your next assignment
               </h2>
               <p className="text-sm text-ink-3">Direct hospital orders · Weekly competitive pay</p>
             </div>
@@ -138,7 +139,10 @@ export default async function HomePage() {
                 <label htmlFor="home-search" className="sr-only">
                   Role or specialty
                 </label>
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" aria-hidden />
+                <Search
+                  className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3"
+                  aria-hidden
+                />
                 <input
                   id="home-search"
                   type="text"
@@ -185,16 +189,25 @@ export default async function HomePage() {
                 <Link
                   key={t.href}
                   href={t.href}
-                  className="rounded-full border border-line px-3.5 py-1.5 text-ink-2 transition-colors hover:border-brand/40 hover:bg-brand-soft hover:text-brand-ink"
+                  className="rounded-full bg-surface-2 px-3.5 py-1.5 text-ink-2 transition-colors hover:bg-brand-soft hover:text-brand-ink"
                 >
                   {t.label}
                 </Link>
               ))}
             </div>
           </Reveal>
+        </div>
 
-          {/* Facts — all derived from real data or stated service levels */}
-          <Stagger className="mt-14 grid grid-cols-2 gap-y-10 lg:grid-cols-4" as="ul">
+        <div className="mt-12">
+          <p className="container-page mb-4 text-center text-xs font-semibold uppercase tracking-[0.16em] text-ink-3">
+            Now staffing across {SPECIALTIES.length} clinical specialties
+          </p>
+          <SpecialtyMarquee />
+        </div>
+
+        {/* Facts — all derived from real data or stated service levels */}
+        <div className="container-page">
+          <Stagger className="mt-16 grid grid-cols-2 gap-y-10 lg:grid-cols-4" as="ul">
             {[
               { value: <CountUp value={openPositions} />, label: "Open positions right now" },
               { value: <CountUp value={SPECIALTIES.length} />, label: "Clinical specialties supported" },
@@ -206,8 +219,10 @@ export default async function HomePage() {
                 key={stat.label}
                 className={`px-2 text-center sm:px-6 lg:text-left ${i > 0 ? "lg:border-l lg:border-line" : ""}`}
               >
-                <p className="font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">{stat.value}</p>
-                <p className="mx-auto mt-2 max-w-[14rem] text-sm text-ink-3 lg:mx-0">{stat.label}</p>
+                <p className="font-display text-5xl font-medium tracking-tight text-brand-ink sm:text-6xl">
+                  {stat.value}
+                </p>
+                <p className="mx-auto mt-3 max-w-[14rem] text-sm text-ink-3 lg:mx-0">{stat.label}</p>
               </StaggerItem>
             ))}
           </Stagger>
@@ -215,107 +230,29 @@ export default async function HomePage() {
       </section>
 
       {/* ================================================================
-          TWO AUDIENCES
+          TWO AUDIENCES — interactive split panels
           ================================================================ */}
       <section className="section">
         <div className="container-page">
           <SectionHeading
             eyebrow="Two audiences, one mission"
-            title="Tailored staffing for every side of healthcare."
+            title={
+              <>
+                Staffing that works for <span className="em">everyone</span> in the room.
+              </>
+            }
             description="Whether you are advancing your travel career or staffing an acute care hospital unit, Ideal Healthcare Staffing delivers responsive service and professional integrity."
           />
-
-          <div className="mt-14 grid gap-6 lg:grid-cols-2">
-            {/* Clinicians */}
-            <Reveal className="group flex flex-col overflow-hidden rounded-[1.75rem] border border-line bg-surface">
-              <div className="relative aspect-[16/10] overflow-hidden bg-surface-2">
-                <Image
-                  src="/images/travel-nurse-smiling.jpg"
-                  alt="Smiling travel nurse in scrubs with a stethoscope"
-                  fill
-                  sizes="(min-width: 1024px) 600px, 100vw"
-                  className="object-cover object-[50%_28%] transition-transform duration-700 group-hover:scale-[1.03]"
-                />
-              </div>
-              <div className="flex flex-1 flex-col p-7 sm:p-10">
-                <p className="eyebrow">For clinicians</p>
-                <h3 className="mt-3 font-display text-title font-bold text-ink">Travel nurses &amp; clinicians</h3>
-                <p className="mt-3 text-ink-2">
-                  Earn competitive weekly pay with non-taxed travel stipends, comprehensive day-one benefits, and
-                  dedicated placement coordinator support on every hospital contract.
-                </p>
-                <ul className="mt-6 space-y-3 text-[0.9375rem] text-ink-2">
-                  {[
-                    "Transparent weekly pay packages with maximum IRS per diem travel stipends.",
-                    "Personalized placement coordination and ongoing assignment support.",
-                    "Day-one comprehensive medical, dental, vision, and retirement options.",
-                    "Smooth credentialing assistance and primary license verification.",
-                  ].map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <Check className="mt-0.5 h-5 w-5 shrink-0 text-brand-bright" aria-hidden />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-auto pt-8">
-                  <Link href="/jobs" className="btn-accent group/btn">
-                    Explore open travel jobs
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-0.5" />
-                  </Link>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Facilities */}
-            <Reveal delay={0.1} className="group flex flex-col overflow-hidden rounded-[1.75rem] bg-navy-950 text-white dark:ring-1 dark:ring-white/10">
-              <div className="relative aspect-[16/10] overflow-hidden bg-navy-900">
-                <Image
-                  src="/images/physician-welcome.jpg"
-                  alt="Smiling physician in a white coat holding a stethoscope"
-                  fill
-                  sizes="(min-width: 1024px) 600px, 100vw"
-                  className="object-cover object-[50%_26%] transition-transform duration-700 group-hover:scale-[1.03]"
-                />
-              </div>
-              <div className="flex flex-1 flex-col p-7 sm:p-10">
-                <p className="eyebrow eyebrow-on-dark">For facilities</p>
-                <h3 className="mt-3 font-display text-title font-bold text-white">Hospitals &amp; health systems</h3>
-                <p className="mt-3 text-slate-300">
-                  Safeguard clinical staffing continuity, minimize nurse burnout, and solve urgent census surges with
-                  credentialed travel nurses, allied professionals, and per diem staff.
-                </p>
-                <ul className="mt-6 space-y-3 text-[0.9375rem] text-slate-300">
-                  {[
-                    "Primary-source verified clinical credentials, background checks, and certifications.",
-                    "Rapid candidate matching for acute census peaks, unit vacancies, and leaves.",
-                    "Verified skill checklists, health screenings, and professional references.",
-                    "Flexible contracts from 13-week travelers to direct-hire conversion options.",
-                  ].map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <Check className="mt-0.5 h-5 w-5 shrink-0 text-green-400" aria-hidden />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-auto pt-8">
-                  <Link
-                    href="/facilities#inquiry-form"
-                    className="btn bg-white text-navy-950 hover:bg-slate-100 group/btn"
-                  >
-                    Request a staffing partnership
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-0.5" />
-                  </Link>
-                </div>
-              </div>
-            </Reveal>
-          </div>
+          <Reveal delay={0.1} className="mt-12">
+            <AudienceTabs />
+          </Reveal>
         </div>
       </section>
 
       {/* ================================================================
           FEATURED JOBS
           ================================================================ */}
-      <section className="section border-y border-line bg-surface">
+      <section className="section border-y border-line bg-surface-2/60">
         <div className="container-page">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <SectionHeading
@@ -324,7 +261,7 @@ export default async function HomePage() {
               description="Verified 13-week travel contracts and direct hospital orders with competitive weekly compensation."
             />
             <Reveal>
-              <Link href="/jobs" className="link-arrow group shrink-0">
+              <Link href="/jobs" className="btn-secondary group shrink-0">
                 View all open positions
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
@@ -353,16 +290,23 @@ export default async function HomePage() {
           />
 
           <Stagger className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" as="ul">
-            {SPECIALTY_CARDS.map(({ icon: Icon, ...card }) => (
+            {SPECIALTY_CARDS.map(({ icon: Icon, ...card }, i) => (
               <StaggerItem as="li" key={card.title} className="h-full">
-                <SpotlightCard className="h-full rounded-3xl border border-line bg-surface transition-colors duration-300 hover:border-brand/40">
-                  <Link href={card.href} className="group flex h-full flex-col p-7">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-soft text-brand-ink transition-transform duration-300 group-hover:-translate-y-0.5">
-                      <Icon className="h-6 w-6" aria-hidden />
-                    </span>
-                    <h3 className="mt-6 font-display text-xl font-bold text-ink">{card.title}</h3>
+                <SpotlightCard className="h-full rounded-[1.75rem] border border-line bg-surface transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-brand/35">
+                  <Link href={card.href} className="group flex h-full flex-col p-7 sm:p-8">
+                    <div className="flex items-start justify-between">
+                      <span
+                        className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
+                          i % 3 === 1 ? "bg-accent-soft text-accent-ink" : "bg-brand-soft text-brand-ink"
+                        }`}
+                      >
+                        <Icon className="h-6 w-6" aria-hidden />
+                      </span>
+                      <span className="font-display text-sm text-ink-3">0{i + 1}</span>
+                    </div>
+                    <h3 className="mt-7 font-display text-[1.375rem] font-medium text-ink">{card.title}</h3>
                     <p className="mt-2.5 flex-1 text-[0.9375rem] leading-relaxed text-ink-3">{card.description}</p>
-                    <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-ink">
+                    <span className="mt-7 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-ink">
                       {card.cta}
                       <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </span>
@@ -375,18 +319,27 @@ export default async function HomePage() {
       </section>
 
       {/* ================================================================
-          PROCESS
+          PROCESS — deep spruce band for rhythm
           ================================================================ */}
-      <section className="section border-y border-line bg-surface">
-        <div className="container-page">
-          <SectionHeading
-            align="center"
-            eyebrow="Our methodology"
-            title="The Ideal staffing process"
-            description="A straightforward, transparent process designed to support clinician careers and hospital staffing continuity."
-          />
-          <div className="mt-16">
-            <ProcessSteps steps={PROCESS} />
+      <section className="px-3 sm:px-4">
+        <div className="relative mx-auto max-w-[90rem] overflow-hidden rounded-[2.25rem] bg-spruce py-20 sm:py-24 lg:py-28">
+          <div className="absolute inset-0 bg-dots-light" aria-hidden />
+          <div className="absolute -left-24 top-0 h-80 w-80 rounded-full bg-teal-400/15 blur-[110px]" aria-hidden />
+          <div className="container-page relative">
+            <SectionHeading
+              onDark
+              align="center"
+              eyebrow="Our methodology"
+              title={
+                <>
+                  The Ideal <span className="em em-on-dark">staffing</span> process
+                </>
+              }
+              description="A straightforward, transparent process designed to support clinician careers and hospital staffing continuity."
+            />
+            <div className="mt-16">
+              <ProcessSteps steps={PROCESS} onDark />
+            </div>
           </div>
         </div>
       </section>
@@ -415,19 +368,19 @@ export default async function HomePage() {
           {/* Illustrative "clinician file" — what each submission includes */}
           <Reveal delay={0.15}>
             <div className="relative">
-              <div className="absolute -inset-4 rounded-[2.25rem] bg-dots" aria-hidden />
-              <div className="relative rounded-[1.75rem] border border-line bg-surface p-6 shadow-lift sm:p-8">
+              <div className="absolute -inset-5 rounded-[2.5rem] bg-dots" aria-hidden />
+              <div className="relative rounded-[2rem] border border-line bg-surface p-6 shadow-lift sm:p-8">
                 <div className="flex items-center justify-between gap-4 border-b border-line pb-5">
                   <div className="flex items-center gap-3">
                     <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand-ink">
                       <ShieldCheck className="h-5 w-5" aria-hidden />
                     </span>
                     <div>
-                      <p className="font-display font-bold text-ink">Every clinician file includes</p>
+                      <p className="font-display text-lg font-medium text-ink">Every clinician file includes</p>
                       <p className="text-sm text-ink-3">Reviewed before any submission</p>
                     </div>
                   </div>
-                  <span className="badge-green hidden sm:inline-flex">
+                  <span className="badge-coral hidden sm:inline-flex">
                     <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
                     Joint Commission aligned
                   </span>
@@ -455,7 +408,7 @@ export default async function HomePage() {
         title={
           <>
             Exceptional people.
-            <br className="hidden sm:block" /> Exceptional care.
+            <br className="hidden sm:block" /> Exceptional <span className="em em-on-dark">care.</span>
           </>
         }
         description="Find your next assignment or secure dependable coverage for your units — our coordinators respond quickly."

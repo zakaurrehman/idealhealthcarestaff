@@ -27,13 +27,9 @@ export default function SectionHeading({
           {eyebrow}
         </p>
       )}
-      <H
-        className={`mt-4 font-display text-display font-bold ${onDark ? "text-white" : "text-ink"}`}
-      >
-        {title}
-      </H>
+      <H className={`mt-5 font-display text-display font-medium ${onDark ? "text-white" : "text-ink"}`}>{title}</H>
       {description && (
-        <p className={`mt-5 text-lead ${onDark ? "text-slate-300" : "text-ink-2"}`}>{description}</p>
+        <p className={`mt-5 text-lead ${onDark ? "text-spruce-50/75" : "text-ink-2"}`}>{description}</p>
       )}
     </Reveal>
   );

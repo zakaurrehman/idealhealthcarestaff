@@ -6,7 +6,7 @@ export default function NotFound() {
     <div className="container-page flex min-h-[70vh] items-center justify-center py-20">
       <div className="max-w-lg text-center">
         <p className="eyebrow justify-center">404 · Page not found</p>
-        <h1 className="mt-5 font-display text-display font-bold text-ink">We couldn&apos;t find that page.</h1>
+        <h1 className="mt-5 font-display text-display font-medium text-ink">We couldn&apos;t find that page.</h1>
         <p className="mt-5 text-lead text-ink-2">
           The clinical resource, job listing, or page you requested may have moved or been filled.
         </p>

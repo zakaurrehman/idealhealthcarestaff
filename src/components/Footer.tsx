@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lock, MapPin, Phone, Printer, Globe } from "lucide-react";
+import { Globe, Lock, MapPin, Phone, Printer } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import Logo from "@/components/Logo";
 
@@ -38,35 +38,35 @@ const COLUMNS = [
 
 export default function Footer() {
   return (
-    <footer id="site-footer" className="bg-navy-950 text-slate-300">
+    <footer id="site-footer" className="bg-spruce text-spruce-50/75">
       <div className="container-page py-16 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           {/* Brand + contact */}
           <div className="lg:col-span-4">
-            <Logo tile="always" size="lg" />
-            <p className="mt-6 font-display text-lg font-semibold text-white">{COMPANY_INFO.tagline}</p>
-            <p className="mt-1 text-sm text-green-300">{COMPANY_INFO.subtagline}</p>
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-slate-400">
-              Clinical recruitment and workforce solutions connecting travel nurses, allied health clinicians,
-              and healthcare systems across the United States.
+            <Logo variant="onDark" size="lg" />
+            <p className="mt-7 font-display text-2xl font-medium text-white">{COMPANY_INFO.tagline}</p>
+            <p className="mt-1.5 text-sm text-coral-300">{COMPANY_INFO.subtagline}</p>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-spruce-50/60">
+              Clinical recruitment and workforce solutions connecting travel nurses, allied health clinicians, and
+              healthcare systems across the United States.
             </p>
 
             <ul className="mt-8 space-y-3 text-sm">
               <li>
                 <a
                   href={COMPANY_INFO.phoneHref}
-                  className="inline-flex items-center gap-3 font-semibold text-white transition-colors hover:text-green-300"
+                  className="inline-flex items-center gap-3 font-semibold text-white transition-colors hover:text-teal-200"
                 >
-                  <Phone className="h-4 w-4 text-green-400" aria-hidden />
+                  <Phone className="h-4 w-4 text-teal-300" aria-hidden />
                   {COMPANY_INFO.phone}
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <Printer className="h-4 w-4 text-slate-500" aria-hidden />
+                <Printer className="h-4 w-4 text-spruce-50/40" aria-hidden />
                 <span>Fax {COMPANY_INFO.fax}</span>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden />
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-spruce-50/40" aria-hidden />
                 <span>{COMPANY_INFO.address}</span>
               </li>
               <li>
@@ -76,7 +76,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-3 transition-colors hover:text-white"
                 >
-                  <Globe className="h-4 w-4 text-slate-500" aria-hidden />
+                  <Globe className="h-4 w-4 text-spruce-50/40" aria-hidden />
                   idealhealthcarestaff.com
                 </a>
               </li>
@@ -87,11 +87,14 @@ export default function Footer() {
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-8 lg:pl-12">
             {COLUMNS.map((col) => (
               <nav key={col.title} aria-label={col.title}>
-                <h3 className="font-display text-sm font-semibold text-white">{col.title}</h3>
+                <h3 className="font-display text-lg font-medium text-white">{col.title}</h3>
                 <ul className="mt-5 space-y-3 text-sm">
                   {col.links.map((link) => (
                     <li key={link.label}>
-                      <Link href={link.href} className="text-slate-400 transition-colors hover:text-white">
+                      <Link
+                        href={link.href}
+                        className="text-spruce-50/65 transition-colors hover:text-white"
+                      >
                         {link.label}
                       </Link>
                     </li>
@@ -104,7 +107,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="container-page flex flex-col items-center justify-between gap-4 py-6 text-xs text-slate-400 md:flex-row">
+        <div className="container-page flex flex-col items-center justify-between gap-4 py-6 text-xs text-spruce-50/60 md:flex-row">
           <p className="text-center md:text-left">
             © {new Date().getFullYear()} {COMPANY_INFO.name}. All rights reserved. Equal Opportunity Employer.
           </p>
