@@ -14,6 +14,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import FacilityInquiryForm from "@/components/FacilityInquiryForm";
+import { PartnerAffiliationStrip } from "@/components/PartnerAffiliation";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import ProcessSteps from "@/components/ui/ProcessSteps";
@@ -239,6 +240,8 @@ export default function FacilitiesPage() {
           </Stagger>
         </div>
       </section>
+
+      <PartnerAffiliationStrip />
 
       {/* ================================================================
           CREDENTIALING STANDARDS

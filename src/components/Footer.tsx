@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Globe, Lock, MapPin, Phone, Printer } from "lucide-react";
-import { COMPANY_INFO } from "@/lib/constants";
+import { Globe, HeartHandshake, Lock, MapPin, Phone, Printer } from "lucide-react";
+import { AFFILIATE, COMPANY_INFO } from "@/lib/constants";
 import Logo from "@/components/Logo";
 
 const COLUMNS = [
@@ -81,6 +81,17 @@ export default function Footer() {
                 </a>
               </li>
             </ul>
+
+            <a
+              href={AFFILIATE.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 inline-flex items-center gap-2.5 rounded-full border border-white/15 px-4 py-2 text-xs text-spruce-50/80 transition-colors hover:border-white/30 hover:text-white"
+            >
+              <HeartHandshake className="h-4 w-4 text-coral-300" aria-hidden />
+              Proudly affiliated with <span className="font-semibold text-white">{AFFILIATE.name}®</span>
+              <span className="sr-only">(opens in a new tab)</span>
+            </a>
           </div>
 
           {/* Link columns */}

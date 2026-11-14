@@ -11,6 +11,13 @@ export const COMPANY_INFO = {
   website: "https://idealhealthcarestaff.com/",
 };
 
+export const AFFILIATE = {
+  name: "Hospitals Without Walls",
+  tagline: "A Global Network of Patient-Centered Healthcare Providers",
+  url: "https://www.hospitalswithoutwalls.com/",
+  image: "/images/hospitals-without-walls-affiliation.jpg",
+};
+
 export const US_STATES = [
   { code: "AL", name: "Alabama" },
   { code: "AK", name: "Alaska" },

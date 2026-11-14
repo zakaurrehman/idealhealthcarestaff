@@ -22,6 +22,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import ProcessSteps from "@/components/ui/ProcessSteps";
 import CtaBand from "@/components/ui/CtaBand";
+import { PartnerAffiliationFeature } from "@/components/PartnerAffiliation";
 import CountUp from "@/components/motion/CountUp";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { SPECIALTIES, US_STATES } from "@/lib/constants";
@@ -248,6 +249,11 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      {/* ================================================================
+          AFFILIATION — Hospitals Without Walls®
+          ================================================================ */}
+      <PartnerAffiliationFeature />
 
       {/* ================================================================
           FEATURED JOBS
