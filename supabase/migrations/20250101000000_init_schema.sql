@@ -107,57 +107,45 @@ ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.facility_inquiries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_alerts ENABLE ROW LEVEL SECURITY;
 
--- JOBS POLICIES:
--- Anyone can view published jobs
+-- The admin portal does NOT use Supabase Auth. All admin reads/writes go
+-- through server actions using the SERVICE ROLE key, which bypasses RLS.
+-- Therefore no "authenticated" policies are granted: Supabase allows public
+-- sign-up by default, so such policies would expose candidate data to anyone.
+-- The public (anon) key may only read published jobs and submit forms.
+
+-- JOBS: anyone can view published jobs (read-only)
+DROP POLICY IF EXISTS "Public can view published jobs" ON public.jobs;
 CREATE POLICY "Public can view published jobs"
 ON public.jobs FOR SELECT
+TO anon, authenticated
 USING (status = 'published');
 
--- Only authenticated users (admins) can insert/update/delete jobs
-CREATE POLICY "Authenticated users can manage jobs"
-ON public.jobs FOR ALL
-TO authenticated
-USING (true)
-WITH CHECK (true);
-
--- APPLICATIONS POLICIES:
--- Public can submit applications (INSERT only)
+-- APPLICATIONS: public can submit (INSERT only, never read)
+DROP POLICY IF EXISTS "Public can submit applications" ON public.applications;
 CREATE POLICY "Public can submit applications"
 ON public.applications FOR INSERT
+TO anon, authenticated
 WITH CHECK (true);
 
--- Only authenticated admins can read, update, or delete applications
-CREATE POLICY "Admins can view and manage applications"
-ON public.applications FOR ALL
-TO authenticated
-USING (true)
-WITH CHECK (true);
-
--- FACILITY INQUIRIES POLICIES:
--- Public can submit facility inquiries (INSERT only)
+-- FACILITY INQUIRIES: public can submit (INSERT only, never read)
+DROP POLICY IF EXISTS "Public can submit facility inquiries" ON public.facility_inquiries;
 CREATE POLICY "Public can submit facility inquiries"
 ON public.facility_inquiries FOR INSERT
+TO anon, authenticated
 WITH CHECK (true);
 
--- Only authenticated admins can view and manage facility inquiries
-CREATE POLICY "Admins can view and manage facility inquiries"
-ON public.facility_inquiries FOR ALL
-TO authenticated
-USING (true)
-WITH CHECK (true);
-
--- JOB ALERTS POLICIES:
--- Public can insert alert subscriptions
+-- JOB ALERTS: public can subscribe (INSERT only, never read)
+DROP POLICY IF EXISTS "Public can subscribe to job alerts" ON public.job_alerts;
 CREATE POLICY "Public can subscribe to job alerts"
 ON public.job_alerts FOR INSERT
+TO anon, authenticated
 WITH CHECK (true);
 
--- Admins can view job alerts
-CREATE POLICY "Admins can manage job alerts"
-ON public.job_alerts FOR ALL
-TO authenticated
-USING (true)
-WITH CHECK (true);
+-- Remove broad policies from earlier versions of this schema, if present
+DROP POLICY IF EXISTS "Authenticated users can manage jobs" ON public.jobs;
+DROP POLICY IF EXISTS "Admins can view and manage applications" ON public.applications;
+DROP POLICY IF EXISTS "Admins can view and manage facility inquiries" ON public.facility_inquiries;
+DROP POLICY IF EXISTS "Admins can manage job alerts" ON public.job_alerts;
 
 -- ====================================================================
 -- STORAGE BUCKET CONFIGURATION (Private Resumes)
@@ -169,8 +157,6 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('resumes', 'resumes', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Storage RLS:
-CREATE POLICY "Authenticated admins can view resumes"
-ON storage.objects FOR SELECT
-TO authenticated
-USING (bucket_id = 'resumes');
+-- Storage: no public or "authenticated" access to resumes. Uploads and
+-- downloads happen server-side with the service role (bypasses RLS).
+DROP POLICY IF EXISTS "Authenticated admins can view resumes" ON storage.objects;

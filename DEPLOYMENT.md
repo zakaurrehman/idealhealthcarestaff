@@ -59,7 +59,8 @@ NEXT_PUBLIC_SITE_URL=https://idealhealthcarestaffing.com
 
 - URL: `/admin`
 - Default local-development passcode: `ideal2025!` (disabled in production — set `ADMIN_PASSWORD`).
-- **Super Admin**: leave the email blank and enter `ADMIN_PASSWORD`.
+- **Super Admin**: sign in with `ADMIN_EMAIL` + `ADMIN_PASSWORD`. Only that exact email (case-insensitive) is
+  accepted. If `ADMIN_EMAIL` is not set, leave the email blank and enter `ADMIN_PASSWORD` instead.
 - **Staff Admin**: created by the Super Admin under Staff Management; sign in with email + password.
 - **Security**:
   - Session cookies are HMAC-signed and expire after 24 hours. Set `ADMIN_SECRET_TOKEN` to a long random value

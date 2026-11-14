@@ -20,10 +20,8 @@ CREATE INDEX IF NOT EXISTS idx_staff_users_is_active ON public.staff_users (is_a
 -- Enable Row Level Security
 ALTER TABLE public.staff_users ENABLE ROW LEVEL SECURITY;
 
--- Only authenticated admins or service-role can read/write staff accounts
-CREATE POLICY "Admins can manage staff accounts"
-ON public.staff_users FOR ALL
-TO authenticated
-USING (true)
-WITH CHECK (true);
+-- No policies: with RLS enabled, only the server-side service role can read or
+-- write staff accounts. (A broad "authenticated" policy would expose password
+-- hashes to anyone who signs up through Supabase Auth.)
+DROP POLICY IF EXISTS "Admins can manage staff accounts" ON public.staff_users;
 

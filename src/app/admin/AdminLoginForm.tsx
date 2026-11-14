@@ -50,29 +50,38 @@ export default function AdminLoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-              <span>Staff Email Address</span>
-              <span className="text-[10px] text-slate-400 font-normal lowercase">(Optional for Super Admin)</span>
+            <label
+              htmlFor="admin-email"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
+            >
+              Email Address
             </label>
             <input
+              id="admin-email"
               type="email"
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. staff@idealhealthcarestaffing.com"
+              placeholder="you@company.com"
               className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-              Passcode or Password *
+            <label
+              htmlFor="admin-password"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
+            >
+              Password *
             </label>
             <input
+              id="admin-password"
               required
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter passcode or staff password..."
+              placeholder="Enter your password"
               className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>

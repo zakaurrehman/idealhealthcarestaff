@@ -81,6 +81,11 @@ function getExpectedAdminPassword(): string | undefined {
   return undefined;
 }
 
+/** Optional Super Admin login email (ADMIN_EMAIL). Lower-cased for comparison. */
+function getSuperAdminEmail(): string | undefined {
+  return cleanEnvValue(process.env.ADMIN_EMAIL)?.toLowerCase();
+}
+
 const SUPER_ADMIN_PERMISSIONS: StaffPermissions = {
   dashboard: true,
   jobs: { view: true, create: true, edit: true, delete: true },
@@ -147,8 +152,19 @@ export async function adminLogin(
     };
   }
 
-  // 1. Super Admin Passcode Check
-  if (!cleanEmail || cleanEmail === "admin" || cleanEmail.includes("admin@")) {
+  // 1. Super Admin Check
+  // With ADMIN_EMAIL configured, only that exact email + ADMIN_PASSWORD grants
+  // Super Admin. Without it, the legacy passcode-only login (blank email) works.
+  const superAdminEmail = getSuperAdminEmail();
+  const isSuperAdminAttempt = superAdminEmail
+    ? cleanEmail === superAdminEmail
+    : !cleanEmail || cleanEmail === "admin" || cleanEmail.includes("admin@");
+
+  if (superAdminEmail && !cleanEmail) {
+    return { success: false, error: "Please enter your email address." };
+  }
+
+  if (isSuperAdminAttempt) {
     if (!expectedPassword) {
       return {
         success: false,
@@ -160,7 +176,7 @@ export async function adminLogin(
       const superSession: AdminSession = {
         role: "super_admin",
         name: "Super Administrator",
-        email: "admin@idealhealthcarestaffing.com",
+        email: superAdminEmail || "admin@idealhealthcarestaffing.com",
         permissions: SUPER_ADMIN_PERMISSIONS,
       };
 
@@ -169,8 +185,8 @@ export async function adminLogin(
       }
       return { success: true, session: superSession };
     }
-    if (!cleanEmail) {
-      return { success: false, error: "Invalid administrative passcode." };
+    if (superAdminEmail || !cleanEmail) {
+      return { success: false, error: superAdminEmail ? "Incorrect email or password." : "Invalid administrative passcode." };
     }
   }
 
@@ -425,6 +441,10 @@ export async function adminCreateStaffUser(data: {
 
   if (!name || !email || !email.includes("@")) {
     return { success: false, error: "Valid staff name and email are required." };
+  }
+
+  if (email === getSuperAdminEmail()) {
+    return { success: false, error: "This email is reserved for the Super Admin account." };
   }
 
   const existing = await getStaffUserByEmail(email);
