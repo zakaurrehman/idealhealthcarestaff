@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { adminLogin } from "@/app/actions/admin";
-import { Lock, ShieldCheck, AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2, Lock, ShieldCheck } from "lucide-react";
 
 export default function AdminLoginForm() {
   const [email, setEmail] = useState("");
@@ -26,35 +26,31 @@ export default function AdminLoginForm() {
   };
 
   return (
-    <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 bg-[#F8FAFC] dark:bg-[#070E1A] transition-colors">
-      <div className="bg-white dark:bg-dark-surface border border-slate-200/90 dark:border-dark-border rounded-2xl p-8 sm:p-10 shadow-lg max-w-md w-full">
-
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-navy-950 dark:bg-dark-card text-green-400 flex items-center justify-center mx-auto mb-4 border border-navy-800 dark:border-dark-border shadow-md">
-            <Lock className="w-6 h-6" />
-          </div>
-          <h1 className="text-2xl font-black text-navy-950 dark:text-white tracking-tight font-display">
-            Staffing Operations Portal
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Sign in as Super Admin or Staff Administrator.
-          </p>
+    <div className="flex min-h-[75vh] items-center justify-center px-4 py-16">
+      <div className="w-full max-w-md rounded-[2rem] border border-line bg-surface p-8 shadow-lift sm:p-10">
+        <div className="text-center">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-spruce text-teal-200">
+            <Lock className="h-6 w-6" aria-hidden />
+          </span>
+          <p className="eyebrow mt-6 justify-center">Staff portal</p>
+          <h1 className="mt-3 font-display text-3xl font-medium text-ink">Welcome back</h1>
+          <p className="mt-2 text-sm text-ink-3">Sign in as Super Admin or Staff Admin.</p>
         </div>
 
         {errorMsg && (
-          <div className="mb-6 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+          <div
+            role="alert"
+            className="mt-6 flex items-start gap-2.5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 dark:border-rose-400/25 dark:bg-rose-400/10 dark:text-rose-200"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
             <span>{errorMsg}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
-            <label
-              htmlFor="admin-email"
-              className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
-            >
-              Email Address
+            <label htmlFor="admin-email" className="field-label">
+              Email address
             </label>
             <input
               id="admin-email"
@@ -63,16 +59,13 @@ export default function AdminLoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="field-input"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="admin-password"
-              className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
-            >
-              Password *
+            <label htmlFor="admin-password" className="field-label">
+              Password
             </label>
             <input
               id="admin-password"
@@ -82,26 +75,26 @@ export default function AdminLoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="field-input"
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full btn-primary py-3 text-sm font-bold shadow-md rounded-xl cursor-pointer"
-          >
-            {submitting ? "Authenticating..." : "Authorize Access"}
+          <button type="submit" disabled={submitting} className="btn-accent btn-lg w-full">
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                Signing in…
+              </>
+            ) : (
+              "Sign in"
+            )}
           </button>
         </form>
 
-        <div className="mt-8 pt-5 border-t border-slate-100 dark:border-dark-border text-center">
-          <div className="inline-flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-            <span>Role-based access control • Super Admin & Staff roles</span>
-          </div>
-        </div>
-
+        <p className="mt-8 flex items-center justify-center gap-1.5 border-t border-line pt-6 text-xs text-ink-3">
+          <ShieldCheck className="h-3.5 w-3.5 text-brand-ink" aria-hidden />
+          Encrypted session · Role-based access
+        </p>
       </div>
     </div>
   );

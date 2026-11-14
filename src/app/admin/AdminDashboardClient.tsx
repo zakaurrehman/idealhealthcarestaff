@@ -398,160 +398,112 @@ export default function AdminDashboardClient({
     }
   };
 
+  const displayName = session.name && session.name !== "Super Administrator" ? session.name : null;
+  const NAV_TABS = [
+    { id: "overview" as const, label: "Overview", icon: LayoutDashboard, show: canViewDashboard },
+    { id: "staff" as const, label: "Staff", count: staffUsers.length, icon: Shield, show: canManageStaff },
+    { id: "jobs" as const, label: "Jobs", count: jobs.length, icon: Briefcase, show: canViewJobs },
+    { id: "applications" as const, label: "Applications", count: applications.length, icon: Users, show: canViewApplications },
+    { id: "facilities" as const, label: "Facility orders", count: inquiries.length, icon: Building2, show: canViewFacilities },
+    { id: "import" as const, label: "CSV import", icon: Upload, show: canImportCsv },
+  ].filter((t) => t.show);
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-slate-100">
-      {/* Top Header Bar */}
-      <div className="bg-navy-950 border-b border-navy-900 px-4 sm:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center justify-center text-green-400 font-bold text-xs tracking-wider">
-              IHS
-            </div>
+    <div className="min-h-screen bg-canvas pb-16 text-ink">
+      {/* ── Portal header (spruce panel, matches the public site) ── */}
+      <section className="px-3 pt-3 sm:px-4">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-spruce text-white">
+          <div className="absolute inset-0 bg-dots-light" aria-hidden />
+          <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-teal-400/15 blur-[100px]" aria-hidden />
+          <div className="relative flex flex-col gap-6 px-6 py-8 sm:px-10 sm:py-10 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-white tracking-tight">
-                  Staffing Coordination & Operations Portal
-                </h1>
+              <p className="eyebrow eyebrow-on-dark">Staffing operations portal</p>
+              <h1 className="mt-4 font-display text-[2rem] font-medium leading-tight text-white sm:text-[2.5rem]">
+                Welcome back{displayName ? `, ${displayName.split(" ")[0]}` : ""}.
+              </h1>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-spruce-50/70">
                 {isSuperAdmin ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                    <Shield className="w-3 h-3 text-purple-400" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-coral-400/15 px-3 py-1 text-xs font-semibold text-coral-200 ring-1 ring-inset ring-coral-300/30">
+                    <Shield className="h-3.5 w-3.5" aria-hidden />
                     Super Admin
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                    <Users className="w-3 h-3 text-blue-400" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-400/15 px-3 py-1 text-xs font-semibold text-teal-200 ring-1 ring-inset ring-teal-300/30">
+                    <Users className="h-3.5 w-3.5" aria-hidden />
                     Staff Admin
                   </span>
                 )}
+                <span>
+                  Signed in as <span className="font-medium text-white">{session.email}</span>
+                </span>
               </div>
-              <p className="text-[11px] text-slate-400">
-                Signed in as <span className="text-slate-200 font-medium">{session.name || session.email}</span>
-              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Link href="/" target="_blank" className="btn-on-dark btn-sm">
+                View public site
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              </Link>
+              <button
+                onClick={async () => {
+                  await adminLogout();
+                  window.location.reload();
+                }}
+                className="btn-light btn-sm"
+              >
+                <LogOut className="h-3.5 w-3.5" aria-hidden />
+                Log out
+              </button>
             </div>
           </div>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              target="_blank"
-              className="text-xs text-slate-300 hover:text-white flex items-center gap-1"
-            >
-              <span>View Public Site</span>
-              <ExternalLink className="w-3 h-3 text-teal-400" />
-            </Link>
-
-            <button
-              onClick={async () => {
-                await adminLogout();
-                window.location.reload();
-              }}
-              className="text-xs text-slate-300 hover:text-rose-400 flex items-center gap-1.5 px-3 py-1.5 rounded border border-navy-800 hover:border-navy-700 bg-navy-900 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Log Out</span>
-            </button>
-          </div>
         </div>
-      </div>
+      </section>
 
       {/* Notification Toast */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 bg-navy-900 text-white px-5 py-3 rounded-lg shadow-xl border border-teal-500/50 text-xs flex items-center gap-2 animate-bounce">
-          <CheckCircle2 className="w-4 h-4 text-teal-400" />
+        <div
+          role="status"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl border border-white/10 bg-spruce px-5 py-3.5 text-sm text-white shadow-float animate-fade-in-up"
+        >
+          <CheckCircle2 className="h-4 w-4 text-teal-300" aria-hidden />
           <span>{notification}</span>
         </div>
       )}
 
-      {/* Main Admin Navigation Tabs */}
-      <div className="bg-white dark:bg-dark-surface border-b border-slate-200 dark:border-dark-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="flex space-x-6 overflow-x-auto text-xs font-semibold">
-            {canViewDashboard && (
+      {/* ── Section navigation: pill tabs ── */}
+      <div className="sticky top-[5.5rem] z-30 mx-auto mt-6 max-w-7xl px-4 sm:px-8">
+        <nav
+          aria-label="Admin sections"
+          className="no-scrollbar flex gap-1 overflow-x-auto rounded-full border border-line bg-surface/90 p-1.5 shadow-soft backdrop-blur-xl"
+        >
+          {NAV_TABS.map(({ id, label, count, icon: Icon }) => {
+            const active = activeTab === id;
+            return (
               <button
-                onClick={() => setActiveTab("overview")}
-                className={`py-4 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
-                  activeTab === "overview"
-                    ? "border-green-600 dark:border-green-400 text-green-700 dark:text-green-400"
-                    : "border-transparent text-slate-500 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white"
+                key={id}
+                onClick={() => setActiveTab(id)}
+                aria-current={active ? "page" : undefined}
+                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                  active ? "bg-brand text-brand-on shadow-sm" : "text-ink-2 hover:bg-surface-2 hover:text-ink"
                 }`}
               >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Overview</span>
+                <Icon className="h-4 w-4" aria-hidden />
+                {label}
+                {typeof count === "number" && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                      active ? "bg-white/20 text-brand-on" : "bg-surface-2 text-ink-3"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                )}
               </button>
-            )}
-
-            {canManageStaff && (
-              <button
-                onClick={() => setActiveTab("staff")}
-                className={`py-4 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
-                  activeTab === "staff"
-                    ? "border-purple-600 dark:border-purple-400 text-purple-700 dark:text-purple-400 font-bold"
-                    : "border-transparent text-slate-500 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white"
-                }`}
-              >
-                <Shield className="w-4 h-4 text-purple-500" />
-                <span>Staff Management ({staffUsers.length})</span>
-              </button>
-            )}
-
-            {canViewJobs && (
-              <button
-                onClick={() => setActiveTab("jobs")}
-                className={`py-4 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
-                  activeTab === "jobs"
-                    ? "border-green-600 dark:border-green-400 text-green-700 dark:text-green-400"
-                    : "border-transparent text-slate-500 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white"
-                }`}
-              >
-                <Briefcase className="w-4 h-4" />
-                <span>Jobs Management ({jobs.length})</span>
-              </button>
-            )}
-
-            {canViewApplications && (
-              <button
-                onClick={() => setActiveTab("applications")}
-                className={`py-4 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
-                  activeTab === "applications"
-                    ? "border-green-600 dark:border-green-400 text-green-700 dark:text-green-400"
-                    : "border-transparent text-slate-500 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white"
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                <span>Candidate Applications ({applications.length})</span>
-              </button>
-            )}
-
-            {canViewFacilities && (
-              <button
-                onClick={() => setActiveTab("facilities")}
-                className={`py-4 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
-                  activeTab === "facilities"
-                    ? "border-green-600 dark:border-green-400 text-green-700 dark:text-green-400"
-                    : "border-transparent text-slate-500 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white"
-                }`}
-              >
-                <Building2 className="w-4 h-4" />
-                <span>Facility Orders ({inquiries.length})</span>
-              </button>
-            )}
-
-            {canImportCsv && (
-              <button
-                onClick={() => setActiveTab("import")}
-                className={`py-4 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
-                  activeTab === "import"
-                    ? "border-green-600 dark:border-green-400 text-green-700 dark:text-green-400"
-                    : "border-transparent text-slate-500 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white"
-                }`}
-              >
-                <Upload className="w-4 h-4" />
-                <span>CSV Job Import</span>
-              </button>
-            )}
-          </div>
-        </div>
+            );
+          })}
+        </nav>
       </div>
+
 
       {/* Main Tab Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
@@ -562,74 +514,75 @@ export default function AdminDashboardClient({
         {activeTab === "overview" && canViewDashboard && (
           <div className="space-y-8">
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white dark:bg-dark-surface p-5 rounded-xl border border-slate-200/80 dark:border-dark-border shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Jobs</span>
-                  <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-600">
-                    <Briefcase className="w-4 h-4" />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  label: "Active jobs",
+                  value: jobs.filter((j) => j.status === "published").length,
+                  note: `${jobs.length} total postings`,
+                  icon: Briefcase,
+                  tone: "bg-brand-soft text-brand-ink",
+                },
+                {
+                  label: "Applications",
+                  value: applications.length,
+                  note: `${applications.filter((a) => a.status === "new").length} awaiting review`,
+                  icon: Users,
+                  tone: "bg-accent-soft text-accent-ink",
+                },
+                {
+                  label: "Facility inquiries",
+                  value: inquiries.length,
+                  note: `${inquiries.filter((i) => i.status === "new").length} new leads`,
+                  icon: Building2,
+                  tone: "bg-brand-soft text-brand-ink",
+                },
+              ].map(({ label, value, note, icon: Icon, tone }) => (
+                <div key={label} className="rounded-[1.5rem] border border-line bg-surface p-6 shadow-soft">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-ink-3">{label}</span>
+                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </span>
                   </div>
+                  <p className="mt-4 font-display text-5xl font-medium tracking-tight text-ink">{value}</p>
+                  <p className="mt-2 text-sm text-ink-3">{note}</p>
                 </div>
-                <div className="mt-3 text-2xl font-bold text-navy-950 dark:text-white font-display">
-                  {jobs.filter(j => j.status === "published").length}
-                </div>
-                <p className="mt-1 text-xs text-slate-400">
-                  {jobs.length} total postings in system
-                </p>
-              </div>
+              ))}
 
-              <div className="bg-white dark:bg-dark-surface p-5 rounded-xl border border-slate-200/80 dark:border-dark-border shadow-sm">
+              {/* Data layer status */}
+              <div className="rounded-[1.5rem] border border-line bg-surface p-6 shadow-soft">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Applications</span>
-                  <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600">
-                    <Users className="w-4 h-4" />
-                  </div>
+                  <span className="text-sm font-medium text-ink-3">Data storage</span>
+                  <span
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                      dataLayerStatus?.mode === "database"
+                        ? "bg-brand-soft text-brand-ink"
+                        : "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300"
+                    }`}
+                  >
+                    <Sparkles className="h-5 w-5" aria-hidden />
+                  </span>
                 </div>
-                <div className="mt-3 text-2xl font-bold text-navy-950 dark:text-white font-display">
-                  {applications.length}
-                </div>
-                <p className="mt-1 text-xs text-slate-400">
-                  {applications.filter(a => a.status === "new").length} pending initial review
+                <p className="mt-4 flex items-center gap-2 font-display text-xl font-medium text-ink">
+                  <span
+                    className={`h-2.5 w-2.5 rounded-full ${
+                      dataLayerStatus?.mode === "database" ? "bg-brand-bright" : "bg-amber-500"
+                    }`}
+                  />
+                  {dataLayerStatus?.mode === "database" ? "Live database" : "Temporary memory"}
                 </p>
-              </div>
-
-              <div className="bg-white dark:bg-dark-surface p-5 rounded-xl border border-slate-200/80 dark:border-dark-border shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hospital Inquiries</span>
-                  <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-600">
-                    <Building2 className="w-4 h-4" />
-                  </div>
-                </div>
-                <div className="mt-3 text-2xl font-bold text-navy-950 dark:text-white font-display">
-                  {inquiries.length}
-                </div>
-                <p className="mt-1 text-xs text-slate-400">
-                  {inquiries.filter(i => i.status === "new").length} new facility leads
-                </p>
-              </div>
-
-              <div className="bg-white dark:bg-dark-surface p-5 rounded-xl border border-slate-200/80 dark:border-dark-border shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Storage Layer</span>
-                  <div className={`p-2 rounded-lg ${dataLayerStatus?.mode === "database" ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600"}`}>
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                </div>
-                <div className="mt-3 text-sm font-bold text-navy-950 dark:text-white font-display flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full ${dataLayerStatus?.mode === "database" ? "bg-green-500" : "bg-amber-500"}`} />
-                  {dataLayerStatus?.mode === "database" ? "Live PostgreSQL" : "Local Memory Store"}
-                </div>
-                <p className="mt-1 text-xs text-slate-400">
-                  {dataLayerStatus?.mode === "database" ? "Supabase live synchronization" : "Configure Supabase env vars for cloud persistence"}
+                <p className="mt-2 text-sm text-ink-3">
+                  {dataLayerStatus?.mode === "database"
+                    ? "Connected to Supabase"
+                    : "Configure Supabase so data is saved"}
                 </p>
               </div>
             </div>
 
             {/* Quick Actions Panel */}
-            <div className="bg-white dark:bg-dark-surface p-6 rounded-2xl border border-slate-200/90 dark:border-dark-border shadow-sm">
-              <h2 className="text-sm font-bold text-navy-950 dark:text-white uppercase tracking-wider mb-4">
-                Operational Shortcuts
-              </h2>
+            <div className="rounded-[1.5rem] border border-line bg-surface p-6 shadow-soft sm:p-8">
+              <h2 className="mb-5 font-display text-xl font-medium text-ink">Quick actions</h2>
               <div className="flex flex-wrap gap-3">
                 {canCreateJobs && (
                   <button
@@ -637,7 +590,7 @@ export default function AdminDashboardClient({
                       setActiveTab("jobs");
                       setCreateJobModalOpen(true);
                     }}
-                    className="btn-accent text-xs px-4 py-2.5 flex items-center gap-1.5 font-semibold cursor-pointer"
+                    className="btn-accent btn-sm"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Post New Job Opening</span>
@@ -646,25 +599,25 @@ export default function AdminDashboardClient({
                 {canViewApplications && (
                   <button
                     onClick={() => setActiveTab("applications")}
-                    className="btn-secondary text-xs px-4 py-2.5 flex items-center gap-1.5 font-semibold cursor-pointer"
+                    className="btn-secondary btn-sm"
                   >
-                    <Users className="w-4 h-4 text-slate-500" />
+                    <Users className="w-4 h-4 text-ink-3" />
                     <span>Review Pending Candidate Files</span>
                   </button>
                 )}
                 {canViewFacilities && (
                   <button
                     onClick={() => setActiveTab("facilities")}
-                    className="btn-secondary text-xs px-4 py-2.5 flex items-center gap-1.5 font-semibold cursor-pointer"
+                    className="btn-secondary btn-sm"
                   >
-                    <Building2 className="w-4 h-4 text-slate-500" />
+                    <Building2 className="w-4 h-4 text-ink-3" />
                     <span>Manage Facility Contracts</span>
                   </button>
                 )}
                 {canManageStaff && (
                   <button
                     onClick={() => setActiveTab("staff")}
-                    className="btn-secondary text-xs px-4 py-2.5 flex items-center gap-1.5 font-semibold cursor-pointer border-purple-200 text-purple-700 hover:bg-purple-50"
+                    className="btn-secondary btn-sm"
                   >
                     <Shield className="w-4 h-4 text-purple-500" />
                     <span>Manage Staff Accounts</span>
@@ -673,9 +626,9 @@ export default function AdminDashboardClient({
                 {canImportCsv && (
                   <button
                     onClick={() => setActiveTab("import")}
-                    className="btn-secondary text-xs px-4 py-2.5 flex items-center gap-1.5 font-semibold cursor-pointer"
+                    className="btn-secondary btn-sm"
                   >
-                    <Upload className="w-4 h-4 text-slate-500" />
+                    <Upload className="w-4 h-4 text-ink-3" />
                     <span>Batch CSV Import</span>
                   </button>
                 )}
@@ -692,12 +645,12 @@ export default function AdminDashboardClient({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-navy-950 dark:text-white font-display">Staff Administration & Permissions</h2>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                  <h2 className="text-xl font-medium text-ink font-display">Staff Administration & Permissions</h2>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                     Super Admin Console
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-ink-3 mt-1">
                   Authorize recruitment coordinators, assign granular module permissions, and manage account statuses.
                 </p>
               </div>
@@ -714,9 +667,9 @@ export default function AdminDashboardClient({
             </div>
 
             {/* Staff Table */}
-            <div className="bg-white dark:bg-dark-surface rounded-2xl border border-slate-200/90 dark:border-dark-border overflow-hidden shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line overflow-hidden shadow-sm">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 dark:bg-dark-card border-b border-slate-200/90 dark:border-dark-border text-slate-600 dark:text-slate-400 uppercase tracking-wider font-bold">
+                <thead className="bg-surface-2 border-b border-line text-ink-2 uppercase tracking-wider font-bold">
                   <tr>
                     <th className="py-3.5 px-5">Staff Member</th>
                     <th className="py-3.5 px-5">Role</th>
@@ -725,24 +678,24 @@ export default function AdminDashboardClient({
                     <th className="py-3.5 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-dark-border text-slate-700 dark:text-slate-300">
+                <tbody className="divide-y divide-line text-ink-2">
                   {staffUsers.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                    <tr key={s.id} className="hover:bg-surface-2 transition-colors">
                       <td className="py-4 px-5">
-                        <div className="font-bold text-navy-950 dark:text-white text-sm">{s.name}</div>
-                        <div className="text-slate-500 dark:text-slate-400 text-xs font-mono">{s.email}</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">Added: {new Date(s.createdAt).toLocaleDateString()}</div>
+                        <div className="font-bold text-ink text-sm">{s.name}</div>
+                        <div className="text-ink-3 text-xs font-mono">{s.email}</div>
+                        <div className="text-[10px] text-ink-3 mt-0.5">Added: {new Date(s.createdAt).toLocaleDateString()}</div>
                       </td>
                       <td className="py-4 px-5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
                           <Users className="w-3 h-3 text-blue-500" />
                           Staff Admin
                         </span>
                       </td>
                       <td className="py-4 px-5">
                         {s.isActive ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-brand-soft text-brand-ink border border-brand/25">
+                            <span className="w-1.5 h-1.5 rounded-full bg-brand-bright" />
                             Active
                           </span>
                         ) : (
@@ -755,7 +708,7 @@ export default function AdminDashboardClient({
                       <td className="py-4 px-5">
                         <div className="flex flex-wrap gap-1.5 max-w-sm">
                           {s.permissions?.dashboard && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-surface-2 text-ink-2 border border-line">
                               Dashboard
                             </span>
                           )}
@@ -770,7 +723,7 @@ export default function AdminDashboardClient({
                             </span>
                           )}
                           {s.permissions?.applications?.view && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-soft text-brand-ink border border-brand/25">
                               Applications ({[
                                 s.permissions.applications.view && "View",
                                 s.permissions.applications.edit && "Edit",
@@ -797,7 +750,7 @@ export default function AdminDashboardClient({
                               setEditPermissionsStaff(s);
                               setEditingPermissions({ ...s.permissions });
                             }}
-                            className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card hover:bg-slate-50 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer shadow-sm"
+                            className="px-2.5 py-1.5 rounded-lg border border-line bg-surface hover:bg-surface-2 text-ink-2 text-xs font-semibold cursor-pointer shadow-sm"
                             title="Edit Permissions"
                           >
                             Permissions
@@ -808,7 +761,7 @@ export default function AdminDashboardClient({
                               setResetPasswordStaff(s);
                               setNewPasswordVal("");
                             }}
-                            className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card hover:bg-slate-50 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer shadow-sm"
+                            className="px-2.5 py-1.5 rounded-lg border border-line bg-surface hover:bg-surface-2 text-ink-2 text-xs font-semibold cursor-pointer shadow-sm"
                             title="Reset Staff Password"
                           >
                             Password
@@ -825,7 +778,7 @@ export default function AdminDashboardClient({
                             className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold cursor-pointer transition-colors shadow-sm ${
                               s.isActive
                                 ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
-                                : "border-green-200 bg-green-50 text-green-800 hover:bg-green-100"
+                                : "border-brand/25 bg-brand-soft text-brand-ink hover:bg-brand-soft"
                             }`}
                           >
                             {s.isActive ? "Deactivate" : "Activate"}
@@ -853,7 +806,7 @@ export default function AdminDashboardClient({
               </table>
 
               {staffUsers.length === 0 && (
-                <div className="p-10 text-center text-xs text-slate-500">
+                <div className="p-10 text-center text-xs text-ink-3">
                   No staff members created yet. Click &quot;Add Staff Member&quot; to authorize a coordinator.
                 </div>
               )}
@@ -868,13 +821,13 @@ export default function AdminDashboardClient({
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold text-navy-950 dark:text-white">Active Job Postings</h2>
-                <p className="text-xs text-slate-500">Publish, unpublish, close, and manage hospital assignments.</p>
+                <h2 className="text-xl font-bold text-ink">Active Job Postings</h2>
+                <p className="text-xs text-ink-3">Publish, unpublish, close, and manage hospital assignments.</p>
               </div>
               {canCreateJobs && (
                 <button
                   onClick={() => setCreateJobModalOpen(true)}
-                  className="btn-accent text-xs px-4 py-2.5 flex items-center gap-1.5 font-semibold cursor-pointer"
+                  className="btn-accent btn-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create New Job</span>
@@ -883,22 +836,22 @@ export default function AdminDashboardClient({
             </div>
 
             {/* Filter controls */}
-            <div className="bg-white dark:bg-dark-surface p-4 rounded-lg border border-slate-200 dark:border-dark-border flex flex-col sm:flex-row gap-3">
+            <div className="bg-surface p-4 rounded-lg border border-line flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Filter jobs by title or specialty..."
                   value={jobSearch}
                   onChange={(e) => setJobSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-line-strong bg-transparent focus:outline-none focus:ring-1 focus:ring-brand/30"
                 />
               </div>
 
               <select
                 value={jobStatusFilter}
                 onChange={(e) => setJobStatusFilter(e.target.value)}
-                className="text-xs px-3 py-1.5 rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card"
+                className="text-xs px-3 py-1.5 rounded border border-line-strong bg-surface"
               >
                 <option value="all">All Statuses</option>
                 <option value="published">Published Only</option>
@@ -908,9 +861,9 @@ export default function AdminDashboardClient({
             </div>
 
             {/* Jobs Table */}
-            <div className="bg-white dark:bg-dark-surface rounded-lg border border-slate-200 dark:border-dark-border overflow-hidden shadow-sm">
-              <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                <thead className="bg-slate-50 dark:bg-dark-card border-b border-slate-200 dark:border-dark-border text-slate-500 uppercase tracking-wider font-semibold">
+            <div className="bg-surface rounded-lg border border-line overflow-hidden shadow-sm">
+              <table className="w-full text-left text-xs text-ink-2">
+                <thead className="bg-surface-2 border-b border-line text-ink-3 uppercase tracking-wider font-semibold">
                   <tr>
                     <th className="py-3 px-4">Title & Specialty</th>
                     <th className="py-3 px-4">Location</th>
@@ -920,29 +873,29 @@ export default function AdminDashboardClient({
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-dark-border">
+                <tbody className="divide-y divide-line">
                   {filteredJobs.map((j) => (
-                    <tr key={j.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5">
+                    <tr key={j.id} className="hover:bg-surface-2">
                       <td className="py-3.5 px-4">
-                        <Link href={`/jobs/${j.slug}`} target="_blank" className="font-bold text-navy-950 dark:text-white hover:text-teal-700 dark:hover:text-teal-400">
+                        <Link href={`/jobs/${j.slug}`} target="_blank" className="font-bold text-ink hover:text-brand-ink">
                           {j.title}
                         </Link>
-                        <div className="text-[11px] text-slate-500">{j.department} • {j.specialty}</div>
+                        <div className="text-[11px] text-ink-3">{j.department} • {j.specialty}</div>
                       </td>
                       <td className="py-3.5 px-4 font-medium">
                         {j.locationCity}, {j.locationState}
                       </td>
                       <td className="py-3.5 px-4">
                         <div>{j.employmentType}</div>
-                        <div className="text-[11px] text-slate-400">{j.shift}</div>
+                        <div className="text-[11px] text-ink-3">{j.shift}</div>
                       </td>
-                      <td className="py-3.5 px-4 font-semibold text-navy-950 dark:text-white">
+                      <td className="py-3.5 px-4 font-semibold text-ink">
                         {j.payRange || "Standard"}
                       </td>
                       <td className="py-3.5 px-4">
                         <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                          j.status === "published" ? "bg-teal-50 text-teal-800 border border-teal-200" :
-                          j.status === "draft" ? "bg-slate-100 text-slate-700 border border-slate-200" :
+                          j.status === "published" ? "bg-brand-soft text-brand-ink border border-brand/25" :
+                          j.status === "draft" ? "bg-surface-2 text-ink-2 border border-line" :
                           "bg-rose-50 text-rose-800 border border-rose-200"
                         }`}>
                           {j.status}
@@ -953,14 +906,14 @@ export default function AdminDashboardClient({
                           <select
                             value={j.status}
                             onChange={(e) => handleJobStatusChange(j.id, e.target.value as any)}
-                            className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card font-medium cursor-pointer"
+                            className="text-xs px-2 py-1 rounded border border-line-strong bg-surface font-medium cursor-pointer"
                           >
                             <option value="draft">Draft</option>
                             <option value="published">Published</option>
                             <option value="closed">Closed</option>
                           </select>
                         ) : (
-                          <span className="text-[11px] text-slate-400 italic">View only</span>
+                          <span className="text-[11px] text-ink-3 italic">View only</span>
                         )}
                       </td>
                     </tr>
@@ -969,7 +922,7 @@ export default function AdminDashboardClient({
               </table>
 
               {filteredJobs.length === 0 && (
-                <div className="p-8 text-center text-xs text-slate-400">
+                <div className="p-8 text-center text-xs text-ink-3">
                   No jobs match your filter criteria.
                 </div>
               )}
@@ -984,36 +937,36 @@ export default function AdminDashboardClient({
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold text-navy-950 dark:text-white">Candidate Applications</h2>
-                <p className="text-xs text-slate-500">Submissions from nurses and allied health clinicians.</p>
+                <h2 className="text-xl font-bold text-ink">Candidate Applications</h2>
+                <p className="text-xs text-ink-3">Submissions from nurses and allied health clinicians.</p>
               </div>
 
               <button
                 onClick={exportApplicationsCsv}
                 className="btn-secondary text-xs px-3.5 py-2 flex items-center gap-1.5 font-medium cursor-pointer"
               >
-                <Download className="w-4 h-4 text-slate-500" />
+                <Download className="w-4 h-4 text-ink-3" />
                 <span>Export Applications (CSV)</span>
               </button>
             </div>
 
             {/* Filter controls */}
-            <div className="bg-white dark:bg-dark-surface p-4 rounded-lg border border-slate-200 dark:border-dark-border flex flex-col sm:flex-row gap-3">
+            <div className="bg-surface p-4 rounded-lg border border-line flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Filter by clinician name or specialty..."
                   value={appSearch}
                   onChange={(e) => setAppSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-line-strong bg-transparent focus:outline-none focus:ring-1 focus:ring-brand/30"
                 />
               </div>
 
               <select
                 value={appStatusFilter}
                 onChange={(e) => setAppStatusFilter(e.target.value)}
-                className="text-xs px-3 py-1.5 rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card"
+                className="text-xs px-3 py-1.5 rounded border border-line-strong bg-surface"
               >
                 <option value="all">All Application Statuses</option>
                 <option value="new">New Submissions</option>
@@ -1026,9 +979,9 @@ export default function AdminDashboardClient({
             </div>
 
             {/* Applications Table */}
-            <div className="bg-white dark:bg-dark-surface rounded-lg border border-slate-200 dark:border-dark-border overflow-hidden shadow-sm">
-              <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                <thead className="bg-slate-50 dark:bg-dark-card border-b border-slate-200 dark:border-dark-border text-slate-500 uppercase tracking-wider font-semibold">
+            <div className="bg-surface rounded-lg border border-line overflow-hidden shadow-sm">
+              <table className="w-full text-left text-xs text-ink-2">
+                <thead className="bg-surface-2 border-b border-line text-ink-3 uppercase tracking-wider font-semibold">
                   <tr>
                     <th className="py-3 px-4">Clinician Candidate</th>
                     <th className="py-3 px-4">Specialty & Experience</th>
@@ -1038,18 +991,18 @@ export default function AdminDashboardClient({
                     <th className="py-3 px-4 text-right">Workflow</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-dark-border">
+                <tbody className="divide-y divide-line">
                   {filteredApps.map((a) => (
-                    <tr key={a.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5">
+                    <tr key={a.id} className="hover:bg-surface-2">
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-navy-950 dark:text-white">{a.fullName}</div>
-                        <div className="text-[11px] text-slate-500">{a.email} • {a.phone}</div>
+                        <div className="font-bold text-ink">{a.fullName}</div>
+                        <div className="text-[11px] text-ink-3">{a.email} • {a.phone}</div>
                         {a.resumeUrl && (
                           <a
                             href={a.resumeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] text-teal-600 hover:underline mt-1"
+                            className="inline-flex items-center gap-1 text-[11px] text-brand-ink hover:underline mt-1"
                           >
                             <FileText className="w-3 h-3" />
                             <span>View Resume Document</span>
@@ -1057,13 +1010,13 @@ export default function AdminDashboardClient({
                         )}
                       </td>
                       <td className="py-3.5 px-4">
-                        <div className="font-semibold text-navy-950 dark:text-white">{a.specialty}</div>
-                        <div className="text-[11px] text-slate-500">{a.yearsOfExperience} Years Experience</div>
+                        <div className="font-semibold text-ink">{a.specialty}</div>
+                        <div className="text-[11px] text-ink-3">{a.yearsOfExperience.replace(/\s*years?$/i, "")} years experience</div>
                       </td>
                       <td className="py-3.5 px-4 font-medium">
                         {a.primaryLicenseState || "Not Specified"}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-500 text-[11px]">
+                      <td className="py-3.5 px-4 text-ink-3 text-[11px]">
                         {new Date(a.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-3.5 px-4">
@@ -1073,7 +1026,7 @@ export default function AdminDashboardClient({
                           a.status === "contacted" ? "bg-purple-50 text-purple-800 border border-purple-200" :
                           a.status === "screening" ? "bg-indigo-50 text-indigo-800 border border-indigo-200" :
                           a.status === "placed" ? "bg-emerald-50 text-emerald-800 border border-emerald-200" :
-                          "bg-slate-100 text-slate-700 border border-slate-200"
+                          "bg-surface-2 text-ink-2 border border-line"
                         }`}>
                           {a.status}
                         </span>
@@ -1083,7 +1036,7 @@ export default function AdminDashboardClient({
                           <select
                             value={a.status}
                             onChange={(e) => handleAppStatusChange(a.id, e.target.value as ApplicationStatus)}
-                            className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card font-medium cursor-pointer"
+                            className="text-xs px-2 py-1 rounded border border-line-strong bg-surface font-medium cursor-pointer"
                           >
                             <option value="new">New</option>
                             <option value="reviewed">Reviewed</option>
@@ -1093,7 +1046,7 @@ export default function AdminDashboardClient({
                             <option value="archived">Archived</option>
                           </select>
                         ) : (
-                          <span className="text-[11px] text-slate-400 italic">View only</span>
+                          <span className="text-[11px] text-ink-3 italic">View only</span>
                         )}
                       </td>
                     </tr>
@@ -1102,7 +1055,7 @@ export default function AdminDashboardClient({
               </table>
 
               {filteredApps.length === 0 && (
-                <div className="p-8 text-center text-xs text-slate-400">
+                <div className="p-8 text-center text-xs text-ink-3">
                   No applications match your filter criteria.
                 </div>
               )}
@@ -1117,36 +1070,36 @@ export default function AdminDashboardClient({
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold text-navy-950 dark:text-white">Hospital & Facility Staffing Inquiries</h2>
-                <p className="text-xs text-slate-500">Contract requests submitted by hospital partners and health systems.</p>
+                <h2 className="text-xl font-bold text-ink">Hospital & Facility Staffing Inquiries</h2>
+                <p className="text-xs text-ink-3">Contract requests submitted by hospital partners and health systems.</p>
               </div>
 
               <button
                 onClick={exportInquiriesCsv}
                 className="btn-secondary text-xs px-3.5 py-2 flex items-center gap-1.5 font-medium cursor-pointer"
               >
-                <Download className="w-4 h-4 text-slate-500" />
+                <Download className="w-4 h-4 text-ink-3" />
                 <span>Export Facility Inquiries (CSV)</span>
               </button>
             </div>
 
             {/* Filter controls */}
-            <div className="bg-white dark:bg-dark-surface p-4 rounded-lg border border-slate-200 dark:border-dark-border flex flex-col sm:flex-row gap-3">
+            <div className="bg-surface p-4 rounded-lg border border-line flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Filter by facility name or contact person..."
                   value={inqSearch}
                   onChange={(e) => setInqSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-line-strong bg-transparent focus:outline-none focus:ring-1 focus:ring-brand/30"
                 />
               </div>
 
               <select
                 value={inqStatusFilter}
                 onChange={(e) => setInqStatusFilter(e.target.value)}
-                className="text-xs px-3 py-1.5 rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card"
+                className="text-xs px-3 py-1.5 rounded border border-line-strong bg-surface"
               >
                 <option value="all">All Order Statuses</option>
                 <option value="new">New Inquiries</option>
@@ -1159,9 +1112,9 @@ export default function AdminDashboardClient({
             </div>
 
             {/* Inquiries Table */}
-            <div className="bg-white dark:bg-dark-surface rounded-lg border border-slate-200 dark:border-dark-border overflow-hidden shadow-sm">
-              <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                <thead className="bg-slate-50 dark:bg-dark-card border-b border-slate-200 dark:border-dark-border text-slate-500 uppercase tracking-wider font-semibold">
+            <div className="bg-surface rounded-lg border border-line overflow-hidden shadow-sm">
+              <table className="w-full text-left text-xs text-ink-2">
+                <thead className="bg-surface-2 border-b border-line text-ink-3 uppercase tracking-wider font-semibold">
                   <tr>
                     <th className="py-3 px-4">Hospital / Facility</th>
                     <th className="py-3 px-4">Contact Person</th>
@@ -1171,22 +1124,22 @@ export default function AdminDashboardClient({
                     <th className="py-3 px-4 text-right">Workflow</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-dark-border">
+                <tbody className="divide-y divide-line">
                   {filteredInquiries.map((i) => (
-                    <tr key={i.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5">
+                    <tr key={i.id} className="hover:bg-surface-2">
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-navy-950 dark:text-white">{i.facilityName}</div>
-                        <div className="text-[11px] text-slate-500">{i.facilityType}</div>
+                        <div className="font-bold text-ink">{i.facilityName}</div>
+                        <div className="text-[11px] text-ink-3">{i.facilityType}</div>
                       </td>
                       <td className="py-3.5 px-4">
-                        <div className="font-semibold text-navy-950 dark:text-white">{i.contactName}</div>
-                        <div className="text-[11px] text-slate-500">{i.email} • {i.phone}</div>
+                        <div className="font-semibold text-ink">{i.contactName}</div>
+                        <div className="text-[11px] text-ink-3">{i.email} • {i.phone}</div>
                       </td>
                       <td className="py-3.5 px-4 font-medium">
                         {i.city}, {i.state}
                       </td>
                       <td className="py-3.5 px-4">
-                        <div className="max-w-xs truncate text-[11px] text-slate-600 dark:text-slate-400">
+                        <div className="max-w-xs truncate text-[11px] text-ink-2">
                           {i.staffingNeeds}
                         </div>
                       </td>
@@ -1197,7 +1150,7 @@ export default function AdminDashboardClient({
                           i.status === "in_discussion" ? "bg-amber-50 text-amber-800 border border-amber-200" :
                           i.status === "agreement_sent" ? "bg-sky-50 text-sky-800 border border-sky-200" :
                           i.status === "active_client" ? "bg-emerald-50 text-emerald-800 border border-emerald-200" :
-                          "bg-slate-100 text-slate-700 border border-slate-200"
+                          "bg-surface-2 text-ink-2 border border-line"
                         }`}>
                           {i.status.replace("_", " ")}
                         </span>
@@ -1207,7 +1160,7 @@ export default function AdminDashboardClient({
                           <select
                             value={i.status}
                             onChange={(e) => handleInquiryStatusChange(i.id, e.target.value as FacilityInquiryStatus)}
-                            className="text-xs px-2 py-1 rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card font-medium cursor-pointer"
+                            className="text-xs px-2 py-1 rounded border border-line-strong bg-surface font-medium cursor-pointer"
                           >
                             <option value="new">New</option>
                             <option value="contacted">Contacted</option>
@@ -1217,7 +1170,7 @@ export default function AdminDashboardClient({
                             <option value="closed">Closed</option>
                           </select>
                         ) : (
-                          <span className="text-[11px] text-slate-400 italic">View only</span>
+                          <span className="text-[11px] text-ink-3 italic">View only</span>
                         )}
                       </td>
                     </tr>
@@ -1226,7 +1179,7 @@ export default function AdminDashboardClient({
               </table>
 
               {filteredInquiries.length === 0 && (
-                <div className="p-8 text-center text-xs text-slate-400">
+                <div className="p-8 text-center text-xs text-ink-3">
                   No facility inquiries match your filter criteria.
                 </div>
               )}
@@ -1240,43 +1193,43 @@ export default function AdminDashboardClient({
         {activeTab === "import" && canImportCsv && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-navy-950 dark:text-white">Batch CSV Job Import</h2>
-              <p className="text-xs text-slate-500">Bulk upload multiple healthcare assignment openings from a standardized spreadsheet.</p>
+              <h2 className="text-xl font-bold text-ink">Batch CSV Job Import</h2>
+              <p className="text-xs text-ink-3">Bulk upload multiple healthcare assignment openings from a standardized spreadsheet.</p>
             </div>
 
-            <div className="bg-white dark:bg-dark-surface p-6 sm:p-8 rounded-2xl border border-slate-200/90 dark:border-dark-border space-y-6 shadow-sm">
-              <div className="p-4 bg-slate-50 dark:bg-dark-card rounded-xl border border-slate-200 dark:border-dark-border text-xs text-slate-600 dark:text-slate-400 space-y-2">
-                <div className="font-bold text-navy-950 dark:text-white flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-teal-600" />
+            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-line space-y-6 shadow-sm">
+              <div className="p-4 bg-surface-2 rounded-xl border border-line text-xs text-ink-2 space-y-2">
+                <div className="font-bold text-ink flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-brand-ink" />
                   <span>Required CSV Column Headers</span>
                 </div>
                 <p>Ensure your CSV file contains the following column headers (case-insensitive):</p>
-                <div className="font-mono text-[11px] bg-white dark:bg-dark-surface p-2.5 rounded border border-slate-200 dark:border-dark-border text-slate-800 dark:text-slate-200 overflow-x-auto">
+                <div className="font-mono text-[11px] bg-surface p-2.5 rounded border border-line text-ink overflow-x-auto">
                   title, department, specialty, locationCity, locationState, employmentType, shift, payRange, durationWeeks, description
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs font-bold text-ink-2 mb-2">
                   Select CSV File to Upload
                 </label>
                 <input
                   type="file"
                   accept=".csv"
                   onChange={handleCsvFileChange}
-                  className="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+                  className="block w-full text-xs text-ink-3 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
                 />
               </div>
 
               {csvParsedRows.length > 0 && (
                 <div className="space-y-4">
-                  <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Preview: Found <span className="text-teal-600 font-bold">{csvParsedRows.length}</span> rows ready for import.
+                  <div className="text-xs font-semibold text-ink-2">
+                    Preview: Found <span className="text-brand-ink font-bold">{csvParsedRows.length}</span> rows ready for import.
                   </div>
 
-                  <div className="max-h-48 overflow-y-auto border border-slate-200 dark:border-dark-border rounded-lg text-[11px]">
+                  <div className="max-h-48 overflow-y-auto border border-line rounded-lg text-[11px]">
                     <table className="w-full text-left">
-                      <thead className="bg-slate-50 dark:bg-dark-card border-b border-slate-200 dark:border-dark-border">
+                      <thead className="bg-surface-2 border-b border-line">
                         <tr>
                           <th className="py-2 px-3">Title</th>
                           <th className="py-2 px-3">Specialty</th>
@@ -1284,7 +1237,7 @@ export default function AdminDashboardClient({
                           <th className="py-2 px-3">Pay Range</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-dark-border">
+                      <tbody className="divide-y divide-line">
                         {csvParsedRows.slice(0, 5).map((row, idx) => (
                           <tr key={idx}>
                             <td className="py-2 px-3 font-semibold">{row.title || "-"}</td>
@@ -1308,8 +1261,8 @@ export default function AdminDashboardClient({
               )}
 
               {csvReport && (
-                <div className="p-4 bg-slate-50 dark:bg-dark-card rounded-xl border border-slate-200 dark:border-dark-border text-xs space-y-1">
-                  <div className="font-bold text-navy-950 dark:text-white">Import Execution Results:</div>
+                <div className="p-4 bg-surface-2 rounded-xl border border-line text-xs space-y-1">
+                  <div className="font-bold text-ink">Import Execution Results:</div>
                   <p className="text-emerald-700 dark:text-emerald-400 font-semibold">
                     Successfully Imported: {csvReport.imported} jobs
                   </p>
@@ -1333,17 +1286,17 @@ export default function AdminDashboardClient({
       {/* CREATE JOB MODAL */}
       {/* ==================================================================== */}
       {createJobModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-2xl border border-slate-200 dark:border-dark-border max-w-2xl w-full p-6 sm:p-8 my-8 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spruce/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-surface rounded-xl shadow-2xl border border-line max-w-2xl w-full p-6 sm:p-8 my-8 relative">
             <button
               onClick={() => setCreateJobModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-card cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 text-ink-3 hover:text-ink rounded-lg hover:bg-surface-2 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="text-xl font-bold text-navy-950 dark:text-white mb-1">Create New Job Posting</h3>
-            <p className="text-xs text-slate-500 mb-6">Enter position parameters to publish or save as draft.</p>
+            <h3 className="text-xl font-bold text-ink mb-1">Create New Job Posting</h3>
+            <p className="text-xs text-ink-3 mb-6">Enter position parameters to publish or save as draft.</p>
 
             {jobFormError && (
               <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded">
@@ -1353,97 +1306,97 @@ export default function AdminDashboardClient({
 
             <form onSubmit={handleCreateJob} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Job Title *</label>
+                <label className="block font-bold text-ink-2 mb-1">Job Title *</label>
                 <input
                   required
                   type="text"
                   name="title"
                   placeholder="e.g. Registered Nurse - Intensive Care Unit"
-                  className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent focus:outline-none focus:ring-1 focus:ring-brand/30"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Department</label>
-                  <select name="department" defaultValue="Nursing" className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card">
+                  <label className="block font-bold text-ink-2 mb-1">Department</label>
+                  <select name="department" defaultValue="Nursing" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-surface">
                     {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Specialty *</label>
-                  <select name="specialty" defaultValue={SPECIALTIES[0]} className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card">
+                  <label className="block font-bold text-ink-2 mb-1">Specialty *</label>
+                  <select name="specialty" defaultValue={SPECIALTIES[0]} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-surface">
                     {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">City *</label>
-                  <input required type="text" name="locationCity" placeholder="Dallas" className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent" />
+                  <label className="block font-bold text-ink-2 mb-1">City *</label>
+                  <input required type="text" name="locationCity" placeholder="Dallas" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">State *</label>
-                  <select name="locationState" defaultValue="TX" className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card">
+                  <label className="block font-bold text-ink-2 mb-1">State *</label>
+                  <select name="locationState" defaultValue="TX" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-surface">
                     {US_STATES.map(st => <option key={st.code} value={st.code}>{st.name} ({st.code})</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Employment Type</label>
-                  <select name="employmentType" defaultValue="Travel Contract" className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-card">
+                  <label className="block font-bold text-ink-2 mb-1">Employment Type</label>
+                  <select name="employmentType" defaultValue="Travel Contract" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-surface">
                     {EMPLOYMENT_TYPES.map(e => <option key={e} value={e}>{e}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Shift Schedule</label>
-                  <input type="text" name="shift" defaultValue="12-Hour Nights (3x12)" className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent" />
+                  <label className="block font-bold text-ink-2 mb-1">Shift Schedule</label>
+                  <input type="text" name="shift" defaultValue="12-Hour Nights (3x12)" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Estimated Compensation</label>
-                  <input type="text" name="payRange" placeholder="$2,600 - $3,100 / week" className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent" />
+                  <label className="block font-bold text-ink-2 mb-1">Estimated Compensation</label>
+                  <input type="text" name="payRange" placeholder="$2,600 - $3,100 / week" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Contract Duration (Weeks)</label>
-                  <input type="number" name="durationWeeks" defaultValue={13} className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent" />
+                  <label className="block font-bold text-ink-2 mb-1">Contract Duration (Weeks)</label>
+                  <input type="number" name="durationWeeks" defaultValue={13} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Position Description *</label>
-                <textarea required rows={3} name="description" placeholder="Clinical role overview..." className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent" />
+                <label className="block font-bold text-ink-2 mb-1">Position Description *</label>
+                <textarea required rows={3} name="description" placeholder="Clinical role overview..." className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Responsibilities (One per line)</label>
-                <textarea rows={3} name="responsibilities" defaultValue={"Provide acute bedside patient care.\nAdminister medications per protocol.\nCollaborate with hospital clinical staff."} className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent font-mono" />
+                <label className="block font-bold text-ink-2 mb-1">Responsibilities (One per line)</label>
+                <textarea rows={3} name="responsibilities" defaultValue={"Provide acute bedside patient care.\nAdminister medications per protocol.\nCollaborate with hospital clinical staff."} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent font-mono" />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Qualifications (One per line)</label>
-                <textarea rows={3} name="qualifications" defaultValue={"Active state or compact nursing license.\nCurrent AHA BLS & ACLS certifications.\nMinimum 2 years bedside hospital experience."} className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent font-mono" />
+                <label className="block font-bold text-ink-2 mb-1">Qualifications (One per line)</label>
+                <textarea rows={3} name="qualifications" defaultValue={"Active state or compact nursing license.\nCurrent AHA BLS & ACLS certifications.\nMinimum 2 years bedside hospital experience."} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent font-mono" />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Benefits (One per line)</label>
-                <textarea rows={2} name="benefits" defaultValue={"Tax-free travel stipends.\nDay-one medical, dental, and vision insurance."} className="w-full px-3 py-2 text-xs rounded border border-slate-300 dark:border-dark-border bg-transparent font-mono" />
+                <label className="block font-bold text-ink-2 mb-1">Benefits (One per line)</label>
+                <textarea rows={2} name="benefits" defaultValue={"Tax-free travel stipends.\nDay-one medical, dental, and vision insurance."} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent font-mono" />
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-dark-border">
+              <div className="flex items-center justify-between pt-4 border-t border-line">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="isUrgent" value="true" className="rounded border-slate-300 text-teal-600" />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">Flag as Priority / Urgent Opening</span>
+                  <input type="checkbox" name="isUrgent" value="true" className="rounded border-line-strong text-brand-ink" />
+                  <span className="font-semibold text-ink-2">Flag as Priority / Urgent Opening</span>
                 </label>
 
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setCreateJobModalOpen(false)}
-                    className="px-4 py-2 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-card rounded cursor-pointer"
+                    className="px-4 py-2 text-xs text-ink-2 hover:bg-surface-2 rounded cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1465,11 +1418,11 @@ export default function AdminDashboardClient({
       {/* ADD STAFF MODAL (SUPER ADMIN ONLY) */}
       {/* ==================================================================== */}
       {addStaffModalOpen && isSuperAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl border border-slate-200/90 dark:border-dark-border max-w-xl w-full p-6 sm:p-8 my-8 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spruce/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-surface rounded-2xl shadow-2xl border border-line max-w-xl w-full p-6 sm:p-8 my-8 relative">
             <button
               onClick={() => setAddStaffModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-card cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 text-ink-3 hover:text-ink rounded-lg hover:bg-surface-2 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1478,9 +1431,9 @@ export default function AdminDashboardClient({
               <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
                 <Shield className="w-4 h-4" />
               </div>
-              <h3 className="text-xl font-bold text-navy-950 dark:text-white font-display">Add Staff Member</h3>
+              <h3 className="text-xl font-medium text-ink font-display">Add Staff Member</h3>
             </div>
-            <p className="text-xs text-slate-500 mb-6">Create a Staff Administrator login and assign section permissions.</p>
+            <p className="text-xs text-ink-3 mb-6">Create a Staff Administrator login and assign section permissions.</p>
 
             {staffFormError && (
               <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center gap-2">
@@ -1491,67 +1444,67 @@ export default function AdminDashboardClient({
 
             <form onSubmit={handleCreateStaff} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Staff Member Full Name *</label>
+                <label className="block font-bold text-ink-2 mb-1">Staff Member Full Name *</label>
                 <input
                   required
                   type="text"
                   value={newStaffName}
                   onChange={(e) => setNewStaffName(e.target.value)}
                   placeholder="e.g. Sarah Jenkins, RN Coordinator"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-line-strong bg-surface-2 text-ink focus:outline-none focus:ring-1 focus:ring-brand/30"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Email Address (Login Username) *</label>
+                  <label className="block font-bold text-ink-2 mb-1">Email Address (Login Username) *</label>
                   <input
                     required
                     type="email"
                     value={newStaffEmail}
                     onChange={(e) => setNewStaffEmail(e.target.value)}
                     placeholder="s.jenkins@idealhealthcarestaffing.com"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-green-500"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-line-strong bg-surface-2 text-ink focus:outline-none focus:ring-1 focus:ring-brand/30"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Initial Password *</label>
+                  <label className="block font-bold text-ink-2 mb-1">Initial Password *</label>
                   <input
                     required
                     type="text"
                     value={newStaffPassword}
                     onChange={(e) => setNewStaffPassword(e.target.value)}
                     placeholder="Min 8 characters"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-green-500 font-mono"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-line-strong bg-surface-2 text-ink focus:outline-none focus:ring-1 focus:ring-brand/30 font-mono"
                   />
                 </div>
               </div>
 
               {/* Permissions Matrix */}
-              <div className="pt-3 border-t border-slate-100 dark:border-dark-border">
-                <label className="block font-bold text-slate-800 dark:text-slate-200 mb-2 uppercase text-[11px] tracking-wider">
+              <div className="pt-3 border-t border-line">
+                <label className="block font-bold text-ink mb-2 uppercase text-[11px] tracking-wider">
                   Module Permissions Matrix
                 </label>
 
                 {/* Dashboard Overview */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border mb-3">
+                <div className="p-3 rounded-xl bg-surface-2 border border-line mb-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={newStaffPermissions.dashboard}
                       onChange={(e) => setNewStaffPermissions({ ...newStaffPermissions, dashboard: e.target.checked })}
-                      className="rounded text-green-600 w-4 h-4"
+                      className="rounded text-brand-ink w-4 h-4"
                     />
                     <div>
-                      <span className="font-bold text-slate-800 dark:text-white">Dashboard Overview</span>
-                      <p className="text-[10px] text-slate-400">Can view operational KPI summary metrics</p>
+                      <span className="font-bold text-ink">Dashboard Overview</span>
+                      <p className="text-[10px] text-ink-3">Can view operational KPI summary metrics</p>
                     </div>
                   </label>
                 </div>
 
                 {/* Jobs Module */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border mb-3 space-y-2">
-                  <span className="font-bold text-slate-800 dark:text-white block">Jobs Management</span>
+                <div className="p-3 rounded-xl bg-surface-2 border border-line mb-3 space-y-2">
+                  <span className="font-bold text-ink block">Jobs Management</span>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <label className="flex items-center gap-1.5 cursor-pointer">
                       <input
@@ -1561,7 +1514,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           jobs: { ...newStaffPermissions.jobs, view: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>View Jobs</span>
                     </label>
@@ -1573,7 +1526,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           jobs: { ...newStaffPermissions.jobs, create: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>Create</span>
                     </label>
@@ -1585,7 +1538,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           jobs: { ...newStaffPermissions.jobs, edit: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>Edit Status</span>
                     </label>
@@ -1597,7 +1550,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           jobs: { ...newStaffPermissions.jobs, delete: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>Delete</span>
                     </label>
@@ -1605,8 +1558,8 @@ export default function AdminDashboardClient({
                 </div>
 
                 {/* Candidate Applications */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border mb-3 space-y-2">
-                  <span className="font-bold text-slate-800 dark:text-white block">Candidate Applications</span>
+                <div className="p-3 rounded-xl bg-surface-2 border border-line mb-3 space-y-2">
+                  <span className="font-bold text-ink block">Candidate Applications</span>
                   <div className="grid grid-cols-3 gap-2">
                     <label className="flex items-center gap-1.5 cursor-pointer">
                       <input
@@ -1616,7 +1569,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           applications: { ...newStaffPermissions.applications, view: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>View Files</span>
                     </label>
@@ -1628,7 +1581,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           applications: { ...newStaffPermissions.applications, edit: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>Edit Status</span>
                     </label>
@@ -1640,7 +1593,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           applications: { ...newStaffPermissions.applications, delete: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>Delete</span>
                     </label>
@@ -1648,8 +1601,8 @@ export default function AdminDashboardClient({
                 </div>
 
                 {/* Facility Inquiries */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border mb-3 space-y-2">
-                  <span className="font-bold text-slate-800 dark:text-white block">Facility Contracts & Inquiries</span>
+                <div className="p-3 rounded-xl bg-surface-2 border border-line mb-3 space-y-2">
+                  <span className="font-bold text-ink block">Facility Contracts & Inquiries</span>
                   <div className="grid grid-cols-3 gap-2">
                     <label className="flex items-center gap-1.5 cursor-pointer">
                       <input
@@ -1659,7 +1612,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           facilities: { ...newStaffPermissions.facilities, view: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>View Orders</span>
                     </label>
@@ -1671,7 +1624,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           facilities: { ...newStaffPermissions.facilities, edit: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>Edit Status</span>
                     </label>
@@ -1683,7 +1636,7 @@ export default function AdminDashboardClient({
                           ...newStaffPermissions,
                           facilities: { ...newStaffPermissions.facilities, delete: e.target.checked }
                         })}
-                        className="rounded text-green-600"
+                        className="rounded text-brand-ink"
                       />
                       <span>Delete</span>
                     </label>
@@ -1691,11 +1644,11 @@ export default function AdminDashboardClient({
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 dark:border-dark-border">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-line">
                 <button
                   type="button"
                   onClick={() => setAddStaffModalOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-card rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs text-ink-2 hover:bg-surface-2 rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1716,24 +1669,24 @@ export default function AdminDashboardClient({
       {/* EDIT STAFF PERMISSIONS MODAL (SUPER ADMIN ONLY) */}
       {/* ==================================================================== */}
       {editPermissionsStaff && editingPermissions && isSuperAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl border border-slate-200/90 dark:border-dark-border max-w-xl w-full p-6 sm:p-8 my-8 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spruce/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-surface rounded-2xl shadow-2xl border border-line max-w-xl w-full p-6 sm:p-8 my-8 relative">
             <button
               onClick={() => setEditPermissionsStaff(null)}
-              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-card cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 text-ink-3 hover:text-ink rounded-lg hover:bg-surface-2 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-2.5 mb-1">
-              <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-soft text-brand-ink flex items-center justify-center">
                 <KeyRound className="w-4 h-4" />
               </div>
-              <h3 className="text-xl font-bold text-navy-950 dark:text-white font-display">
+              <h3 className="text-xl font-medium text-ink font-display">
                 Permissions: {editPermissionsStaff.name}
               </h3>
             </div>
-            <p className="text-xs text-slate-500 mb-6 font-mono">{editPermissionsStaff.email}</p>
+            <p className="text-xs text-ink-3 mb-6 font-mono">{editPermissionsStaff.email}</p>
 
             {staffFormError && (
               <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center gap-2">
@@ -1744,24 +1697,24 @@ export default function AdminDashboardClient({
 
             <div className="space-y-4 text-xs">
               {/* Dashboard */}
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border">
+              <div className="p-3 rounded-xl bg-surface-2 border border-line">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editingPermissions.dashboard}
                     onChange={(e) => setEditingPermissions({ ...editingPermissions, dashboard: e.target.checked })}
-                    className="rounded text-green-600 w-4 h-4"
+                    className="rounded text-brand-ink w-4 h-4"
                   />
                   <div>
-                    <span className="font-bold text-slate-800 dark:text-white">Dashboard Overview</span>
-                    <p className="text-[10px] text-slate-400">Access to high-level operational counts</p>
+                    <span className="font-bold text-ink">Dashboard Overview</span>
+                    <p className="text-[10px] text-ink-3">Access to high-level operational counts</p>
                   </div>
                 </label>
               </div>
 
               {/* Jobs */}
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border space-y-2">
-                <span className="font-bold text-slate-800 dark:text-white block">Jobs Management</span>
+              <div className="p-3 rounded-xl bg-surface-2 border border-line space-y-2">
+                <span className="font-bold text-ink block">Jobs Management</span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <label className="flex items-center gap-1.5 cursor-pointer">
                     <input
@@ -1771,7 +1724,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         jobs: { ...editingPermissions.jobs, view: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>View Jobs</span>
                   </label>
@@ -1783,7 +1736,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         jobs: { ...editingPermissions.jobs, create: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>Create</span>
                   </label>
@@ -1795,7 +1748,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         jobs: { ...editingPermissions.jobs, edit: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>Edit Status</span>
                   </label>
@@ -1807,7 +1760,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         jobs: { ...editingPermissions.jobs, delete: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>Delete</span>
                   </label>
@@ -1815,8 +1768,8 @@ export default function AdminDashboardClient({
               </div>
 
               {/* Applications */}
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border space-y-2">
-                <span className="font-bold text-slate-800 dark:text-white block">Candidate Applications</span>
+              <div className="p-3 rounded-xl bg-surface-2 border border-line space-y-2">
+                <span className="font-bold text-ink block">Candidate Applications</span>
                 <div className="grid grid-cols-3 gap-2">
                   <label className="flex items-center gap-1.5 cursor-pointer">
                     <input
@@ -1826,7 +1779,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         applications: { ...editingPermissions.applications, view: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>View Files</span>
                   </label>
@@ -1838,7 +1791,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         applications: { ...editingPermissions.applications, edit: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>Edit Status</span>
                   </label>
@@ -1850,7 +1803,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         applications: { ...editingPermissions.applications, delete: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>Delete</span>
                   </label>
@@ -1858,8 +1811,8 @@ export default function AdminDashboardClient({
               </div>
 
               {/* Facilities */}
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-card border border-slate-200 dark:border-dark-border space-y-2">
-                <span className="font-bold text-slate-800 dark:text-white block">Facility Contracts & Inquiries</span>
+              <div className="p-3 rounded-xl bg-surface-2 border border-line space-y-2">
+                <span className="font-bold text-ink block">Facility Contracts & Inquiries</span>
                 <div className="grid grid-cols-3 gap-2">
                   <label className="flex items-center gap-1.5 cursor-pointer">
                     <input
@@ -1869,7 +1822,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         facilities: { ...editingPermissions.facilities, view: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>View Orders</span>
                   </label>
@@ -1881,7 +1834,7 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         facilities: { ...editingPermissions.facilities, edit: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>Edit Status</span>
                   </label>
@@ -1893,18 +1846,18 @@ export default function AdminDashboardClient({
                         ...editingPermissions,
                         facilities: { ...editingPermissions.facilities, delete: e.target.checked }
                       })}
-                      className="rounded text-green-600"
+                      className="rounded text-brand-ink"
                     />
                     <span>Delete</span>
                   </label>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 dark:border-dark-border">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-line">
                 <button
                   type="button"
                   onClick={() => setEditPermissionsStaff(null)}
-                  className="px-4 py-2 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-card rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs text-ink-2 hover:bg-surface-2 rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1926,11 +1879,11 @@ export default function AdminDashboardClient({
       {/* RESET STAFF PASSWORD MODAL (SUPER ADMIN ONLY) */}
       {/* ==================================================================== */}
       {resetPasswordStaff && isSuperAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl border border-slate-200/90 dark:border-dark-border max-w-md w-full p-6 sm:p-8 my-8 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spruce/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-surface rounded-2xl shadow-2xl border border-line max-w-md w-full p-6 sm:p-8 my-8 relative">
             <button
               onClick={() => setResetPasswordStaff(null)}
-              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-card cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 text-ink-3 hover:text-ink rounded-lg hover:bg-surface-2 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1939,12 +1892,12 @@ export default function AdminDashboardClient({
               <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
                 <KeyRound className="w-4 h-4" />
               </div>
-              <h3 className="text-xl font-bold text-navy-950 dark:text-white font-display">
+              <h3 className="text-xl font-medium text-ink font-display">
                 Reset Staff Password
               </h3>
             </div>
-            <p className="text-xs text-slate-500 mb-6">
-              Assign a new password for <strong className="text-navy-950 dark:text-white">{resetPasswordStaff.name}</strong> ({resetPasswordStaff.email}).
+            <p className="text-xs text-ink-3 mb-6">
+              Assign a new password for <strong className="text-ink">{resetPasswordStaff.name}</strong> ({resetPasswordStaff.email}).
             </p>
 
             {staffFormError && (
@@ -1956,22 +1909,22 @@ export default function AdminDashboardClient({
 
             <form onSubmit={handleResetPassword} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">New Password (Min 8 characters) *</label>
+                <label className="block font-bold text-ink-2 mb-1">New Password (Min 8 characters) *</label>
                 <input
                   required
                   type="text"
                   value={newPasswordVal}
                   onChange={(e) => setNewPasswordVal(e.target.value)}
                   placeholder="Enter new password..."
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-dark-border bg-slate-50 dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-green-500 font-mono"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-line-strong bg-surface-2 text-ink focus:outline-none focus:ring-1 focus:ring-brand/30 font-mono"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 dark:border-dark-border">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-line">
                 <button
                   type="button"
                   onClick={() => setResetPasswordStaff(null)}
-                  className="px-4 py-2 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-card rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs text-ink-2 hover:bg-surface-2 rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>
