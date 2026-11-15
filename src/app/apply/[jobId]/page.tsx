@@ -84,11 +84,11 @@ export default async function ApplyPage(props: ApplyPageProps) {
             {/* Friendly face, desktop only — on mobile the form stays close to the top */}
             <div className="relative hidden aspect-[4/3] bg-surface-2 lg:block">
               <Image
-                src="/images/professional-portrait.jpg"
-                alt="Smiling professional woman in a white shirt"
+                src="/images/recruiter-call.jpg"
+                alt="Smiling recruiter on a phone call at her desk"
                 fill
                 sizes="400px"
-                className="object-cover object-center"
+                className="object-cover object-[50%_30%]"
               />
             </div>
             <div className="space-y-4 p-6">

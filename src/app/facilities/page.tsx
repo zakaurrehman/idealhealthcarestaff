@@ -292,7 +292,17 @@ export default function FacilitiesPage() {
                   ))}
                 </ol>
 
-                <div className="rounded-3xl border border-line bg-surface p-6">
+                <div className="overflow-hidden rounded-3xl border border-line bg-surface">
+                  <div className="relative aspect-[16/9] bg-surface-2">
+                    <Image
+                      src="/images/coordinator-phone.jpg"
+                      alt="Smiling staffing coordinator taking a call at her desk"
+                      fill
+                      sizes="(min-width: 1024px) 420px, 100vw"
+                      className="object-cover object-[45%_25%]"
+                    />
+                  </div>
+                  <div className="p-6">
                   <p className="text-sm text-ink-3">Prefer to speak with a coordinator?</p>
                   <a
                     href={COMPANY_INFO.phoneHref}
@@ -309,6 +319,7 @@ export default function FacilitiesPage() {
                     <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
                     All inquiries are handled under non-disclosure confidentiality.
                   </p>
+                  </div>
                 </div>
               </Reveal>
             </div>

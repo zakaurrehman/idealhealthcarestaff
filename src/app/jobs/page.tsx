@@ -57,8 +57,8 @@ export default async function JobsPage(props: JobsPageProps) {
             </span>
           </nav>
 
-          <div className="mt-6 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div className="max-w-2xl">
+          <div className="mt-6 grid items-center gap-10 lg:grid-cols-12">
+            <div className="max-w-2xl lg:col-span-7">
               <p className="eyebrow rise">Verified hospital orders</p>
               <h1
                 className="rise mt-4 font-display text-display font-medium text-ink"
@@ -73,8 +73,7 @@ export default async function JobsPage(props: JobsPageProps) {
                 Explore verified travel nursing, therapy, allied health, and permanent clinical positions. Filter by
                 specialty, state, and contract type.
               </p>
-            </div>
-            <p className="rise flex items-center gap-2.5 text-sm text-ink-3" style={{ "--delay": "0.24s" } as React.CSSProperties}>
+            <p className="rise mt-6 flex items-center gap-2.5 text-sm text-ink-3" style={{ "--delay": "0.24s" } as React.CSSProperties}>
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-bright opacity-50 motion-reduce:hidden" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand-bright" />
@@ -84,6 +83,25 @@ export default async function JobsPage(props: JobsPageProps) {
                 {total === 1 ? "opening" : "openings"}
               </span>
             </p>
+            </div>
+
+            {/* Clinician photo — beside the copy, never behind it (desktop only) */}
+            <div
+              className="rise relative hidden lg:col-span-5 lg:block"
+              style={{ "--delay": "0.2s", "--rise": "24px" } as React.CSSProperties}
+            >
+              <div className="absolute -bottom-4 -right-4 left-8 top-8 rounded-[2rem] bg-brand-soft" aria-hidden />
+              <div className="relative aspect-[5/4] overflow-hidden rounded-[2rem] shadow-lift">
+                <Image
+                  src="/images/clinician-desk.jpg"
+                  alt="Clinician in a white coat with a stethoscope at her desk"
+                  fill
+                  priority
+                  sizes="480px"
+                  className="object-cover object-[50%_25%]"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
