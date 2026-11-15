@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Job,
   Application,
@@ -51,7 +51,37 @@ import {
   UserX,
   ShieldAlert
 } from "lucide-react";
+import { CalendarDays, DollarSign, Mail, MapPin, UserPlus, UserRound, Zap } from "lucide-react";
 import Link from "next/link";
+import {
+  AdminModal,
+  BulletListField,
+  Field,
+  FormError,
+  FormSection,
+  IconInput,
+  JobPreview,
+  PasswordField,
+  PermissionsEditor,
+  Segmented,
+  Switch,
+  type JobPreviewData,
+} from "./AdminFormKit";
+
+const EMPTY_JOB_PREVIEW: JobPreviewData = {
+  title: "",
+  department: "Nursing",
+  specialty: SPECIALTIES[0],
+  city: "",
+  state: "TX",
+  employmentType: "Travel Contract",
+  shift: "12-Hour Nights (3x12)",
+  durationWeeks: "13",
+  payRange: "",
+  description: "",
+  isUrgent: false,
+  status: "published",
+};
 
 interface AdminDashboardClientProps {
   session: AdminSession;
@@ -155,6 +185,31 @@ export default function AdminDashboardClient({
   };
 
   // Job Creation Handler
+  // Live preview for the Create Job dialog (reads the uncontrolled form)
+  const [jobPreview, setJobPreview] = useState<JobPreviewData>(EMPTY_JOB_PREVIEW);
+  const updateJobPreview = (form: HTMLFormElement) => {
+    const fd = new FormData(form);
+    const s = (k: string) => String(fd.get(k) ?? "");
+    setJobPreview({
+      title: s("title"),
+      department: s("department"),
+      specialty: s("specialty"),
+      city: s("locationCity"),
+      state: s("locationState"),
+      employmentType: s("employmentType"),
+      shift: s("shift"),
+      durationWeeks: s("durationWeeks"),
+      payRange: s("payRange"),
+      description: s("description"),
+      isUrgent: fd.get("isUrgent") === "true",
+      status: s("status") || "published",
+    });
+  };
+  const closeCreateJob = useCallback(() => {
+    setCreateJobModalOpen(false);
+    setJobPreview(EMPTY_JOB_PREVIEW);
+  }, []);
+
   const handleCreateJob = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setJobFormSubmitting(true);
@@ -168,7 +223,7 @@ export default function AdminDashboardClient({
       setJobFormError(res.error || "Failed to create job.");
     } else if (res.job) {
       setJobs([res.job, ...jobs]);
-      setCreateJobModalOpen(false);
+      closeCreateJob();
       if (res.isPersisted) {
         showNotification(`Job position "${res.job.title}" saved to PostgreSQL database.`);
       } else {
@@ -838,20 +893,20 @@ export default function AdminDashboardClient({
             {/* Filter controls */}
             <div className="bg-surface p-4 rounded-lg border border-line flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
                 <input
                   type="text"
                   placeholder="Filter jobs by title or specialty..."
                   value={jobSearch}
                   onChange={(e) => setJobSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-line-strong bg-transparent focus:outline-none focus:ring-1 focus:ring-brand/30"
+                  className="field-input py-2.5 pl-10 text-sm"
                 />
               </div>
 
               <select
                 value={jobStatusFilter}
                 onChange={(e) => setJobStatusFilter(e.target.value)}
-                className="text-xs px-3 py-1.5 rounded border border-line-strong bg-surface"
+                className="field-input w-auto py-2.5 text-sm"
               >
                 <option value="all">All Statuses</option>
                 <option value="published">Published Only</option>
@@ -906,7 +961,7 @@ export default function AdminDashboardClient({
                           <select
                             value={j.status}
                             onChange={(e) => handleJobStatusChange(j.id, e.target.value as any)}
-                            className="text-xs px-2 py-1 rounded border border-line-strong bg-surface font-medium cursor-pointer"
+                            className="field-input w-auto cursor-pointer rounded-full py-1.5 pl-3 pr-9 text-xs font-medium"
                           >
                             <option value="draft">Draft</option>
                             <option value="published">Published</option>
@@ -953,20 +1008,20 @@ export default function AdminDashboardClient({
             {/* Filter controls */}
             <div className="bg-surface p-4 rounded-lg border border-line flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
                 <input
                   type="text"
                   placeholder="Filter by clinician name or specialty..."
                   value={appSearch}
                   onChange={(e) => setAppSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-line-strong bg-transparent focus:outline-none focus:ring-1 focus:ring-brand/30"
+                  className="field-input py-2.5 pl-10 text-sm"
                 />
               </div>
 
               <select
                 value={appStatusFilter}
                 onChange={(e) => setAppStatusFilter(e.target.value)}
-                className="text-xs px-3 py-1.5 rounded border border-line-strong bg-surface"
+                className="field-input w-auto py-2.5 text-sm"
               >
                 <option value="all">All Application Statuses</option>
                 <option value="new">New Submissions</option>
@@ -1036,7 +1091,7 @@ export default function AdminDashboardClient({
                           <select
                             value={a.status}
                             onChange={(e) => handleAppStatusChange(a.id, e.target.value as ApplicationStatus)}
-                            className="text-xs px-2 py-1 rounded border border-line-strong bg-surface font-medium cursor-pointer"
+                            className="field-input w-auto cursor-pointer rounded-full py-1.5 pl-3 pr-9 text-xs font-medium"
                           >
                             <option value="new">New</option>
                             <option value="reviewed">Reviewed</option>
@@ -1086,20 +1141,20 @@ export default function AdminDashboardClient({
             {/* Filter controls */}
             <div className="bg-surface p-4 rounded-lg border border-line flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
                 <input
                   type="text"
                   placeholder="Filter by facility name or contact person..."
                   value={inqSearch}
                   onChange={(e) => setInqSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded border border-line-strong bg-transparent focus:outline-none focus:ring-1 focus:ring-brand/30"
+                  className="field-input py-2.5 pl-10 text-sm"
                 />
               </div>
 
               <select
                 value={inqStatusFilter}
                 onChange={(e) => setInqStatusFilter(e.target.value)}
-                className="text-xs px-3 py-1.5 rounded border border-line-strong bg-surface"
+                className="field-input w-auto py-2.5 text-sm"
               >
                 <option value="all">All Order Statuses</option>
                 <option value="new">New Inquiries</option>
@@ -1160,7 +1215,7 @@ export default function AdminDashboardClient({
                           <select
                             value={i.status}
                             onChange={(e) => handleInquiryStatusChange(i.id, e.target.value as FacilityInquiryStatus)}
-                            className="text-xs px-2 py-1 rounded border border-line-strong bg-surface font-medium cursor-pointer"
+                            className="field-input w-auto cursor-pointer rounded-full py-1.5 pl-3 pr-9 text-xs font-medium"
                           >
                             <option value="new">New</option>
                             <option value="contacted">Contacted</option>
@@ -1217,7 +1272,7 @@ export default function AdminDashboardClient({
                   type="file"
                   accept=".csv"
                   onChange={handleCsvFileChange}
-                  className="block w-full text-xs text-ink-3 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+                  className="block w-full text-xs text-ink-3 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-soft file:text-brand-ink hover:file:bg-brand-soft/70 cursor-pointer"
                 />
               </div>
 
@@ -1283,663 +1338,316 @@ export default function AdminDashboardClient({
       </div>
 
       {/* ==================================================================== */}
-      {/* CREATE JOB MODAL */}
+      {/* CREATE JOB MODAL — sectioned form + live public preview */}
       {/* ==================================================================== */}
-      {createJobModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spruce/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-surface rounded-xl shadow-2xl border border-line max-w-2xl w-full p-6 sm:p-8 my-8 relative">
-            <button
-              onClick={() => setCreateJobModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 text-ink-3 hover:text-ink rounded-lg hover:bg-surface-2 cursor-pointer"
-            >
-              <X className="w-5 h-5" />
+      <AdminModal
+        open={createJobModalOpen}
+        onClose={closeCreateJob}
+        size="xl"
+        icon={Briefcase}
+        title="Create a job posting"
+        description="Fill in the details — the preview shows exactly how it will look on the website."
+        footer={
+          <>
+            <button type="button" onClick={closeCreateJob} className="btn-secondary">
+              Cancel
             </button>
+            <button type="submit" form="create-job-form" disabled={jobFormSubmitting} className="btn-accent">
+              {jobFormSubmitting ? "Saving…" : "Save job posting"}
+            </button>
+          </>
+        }
+      >
+        <div className="grid lg:grid-cols-12">
+          <form
+            id="create-job-form"
+            onSubmit={handleCreateJob}
+            onChange={(e) => updateJobPreview(e.currentTarget)}
+            className="space-y-10 px-6 py-7 sm:px-8 lg:col-span-7 lg:border-r lg:border-line"
+          >
+            <FormError message={jobFormError} />
 
-            <h3 className="text-xl font-bold text-ink mb-1">Create New Job Posting</h3>
-            <p className="text-xs text-ink-3 mb-6">Enter position parameters to publish or save as draft.</p>
-
-            {jobFormError && (
-              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded">
-                {jobFormError}
-              </div>
-            )}
-
-            <form onSubmit={handleCreateJob} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-ink-2 mb-1">Job Title *</label>
+            <FormSection step={1} title="Role basics" description="What the position is and where it sits.">
+              <Field label="Job title" htmlFor="job-title" required>
                 <input
+                  id="job-title"
                   required
                   type="text"
                   name="title"
-                  placeholder="e.g. Registered Nurse - Intensive Care Unit"
-                  className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent focus:outline-none focus:ring-1 focus:ring-brand/30"
+                  placeholder="e.g. Registered Nurse – Intensive Care Unit"
+                  className="field-input"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">Department</label>
-                  <select name="department" defaultValue="Nursing" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-surface">
-                    {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+              </Field>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Department" htmlFor="job-department">
+                  <select id="job-department" name="department" defaultValue="Nursing" className="field-input">
+                    {DEPARTMENTS.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
                   </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">Specialty *</label>
-                  <select name="specialty" defaultValue={SPECIALTIES[0]} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-surface">
-                    {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
+                </Field>
+                <Field label="Specialty" htmlFor="job-specialty" required>
+                  <select id="job-specialty" name="specialty" defaultValue={SPECIALTIES[0]} className="field-input">
+                    {SPECIALTIES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
                   </select>
-                </div>
+                </Field>
+              </div>
+            </FormSection>
 
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">City *</label>
-                  <input required type="text" name="locationCity" placeholder="Dallas" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">State *</label>
-                  <select name="locationState" defaultValue="TX" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-surface">
-                    {US_STATES.map(st => <option key={st.code} value={st.code}>{st.name} ({st.code})</option>)}
+            <FormSection step={2} title="Location & schedule" description="Where and when the clinician will work.">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="City" htmlFor="job-city" required>
+                  <IconInput icon={MapPin} id="job-city" required type="text" name="locationCity" placeholder="Dallas" />
+                </Field>
+                <Field label="State" htmlFor="job-state" required>
+                  <select id="job-state" name="locationState" defaultValue="TX" className="field-input">
+                    {US_STATES.map((st) => (
+                      <option key={st.code} value={st.code}>
+                        {st.name} ({st.code})
+                      </option>
+                    ))}
                   </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">Employment Type</label>
-                  <select name="employmentType" defaultValue="Travel Contract" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-surface">
-                    {EMPLOYMENT_TYPES.map(e => <option key={e} value={e}>{e}</option>)}
+                </Field>
+                <Field label="Employment type" htmlFor="job-type">
+                  <select id="job-type" name="employmentType" defaultValue="Travel Contract" className="field-input">
+                    {EMPLOYMENT_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
                   </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">Shift Schedule</label>
-                  <input type="text" name="shift" defaultValue="12-Hour Nights (3x12)" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">Estimated Compensation</label>
-                  <input type="text" name="payRange" placeholder="$2,600 - $3,100 / week" className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">Contract Duration (Weeks)</label>
-                  <input type="number" name="durationWeeks" defaultValue={13} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
-                </div>
+                </Field>
+                <Field label="Shift schedule" htmlFor="job-shift">
+                  <IconInput icon={Clock} id="job-shift" type="text" name="shift" defaultValue="12-Hour Nights (3x12)" />
+                </Field>
               </div>
+            </FormSection>
 
-              <div>
-                <label className="block font-bold text-ink-2 mb-1">Position Description *</label>
-                <textarea required rows={3} name="description" placeholder="Clinical role overview..." className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent" />
+            <FormSection step={3} title="Compensation & duration">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Estimated pay" htmlFor="job-pay" hint="Shown on the job card, e.g. $2,600 – $3,100 / week">
+                  <IconInput icon={DollarSign} id="job-pay" type="text" name="payRange" placeholder="$2,600 - $3,100 / week" />
+                </Field>
+                <Field label="Contract length (weeks)" htmlFor="job-weeks">
+                  <IconInput icon={CalendarDays} id="job-weeks" type="number" min={1} name="durationWeeks" defaultValue={13} />
+                </Field>
               </div>
+            </FormSection>
 
-              <div>
-                <label className="block font-bold text-ink-2 mb-1">Responsibilities (One per line)</label>
-                <textarea rows={3} name="responsibilities" defaultValue={"Provide acute bedside patient care.\nAdminister medications per protocol.\nCollaborate with hospital clinical staff."} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent font-mono" />
+            <FormSection step={4} title="Role details" description="Press Enter in a list to add the next item.">
+              <Field label="Position description" htmlFor="job-description" required>
+                <textarea
+                  id="job-description"
+                  required
+                  rows={4}
+                  name="description"
+                  placeholder="A short overview of the unit, facility and what makes this role a great fit…"
+                  className="field-input resize-y"
+                />
+              </Field>
+              <BulletListField
+                name="responsibilities"
+                label="Responsibilities"
+                addLabel="Add responsibility"
+                placeholder="e.g. Provide acute bedside patient care"
+                defaultItems={[
+                  "Provide acute bedside patient care.",
+                  "Administer medications per protocol.",
+                  "Collaborate with hospital clinical staff.",
+                ]}
+              />
+              <BulletListField
+                name="qualifications"
+                label="Qualifications"
+                addLabel="Add qualification"
+                placeholder="e.g. Current AHA BLS & ACLS"
+                defaultItems={[
+                  "Active state or compact nursing license.",
+                  "Current AHA BLS & ACLS certifications.",
+                  "Minimum 2 years bedside hospital experience.",
+                ]}
+              />
+              <BulletListField
+                name="benefits"
+                label="Benefits"
+                addLabel="Add benefit"
+                placeholder="e.g. Day-one medical coverage"
+                defaultItems={["Tax-free travel stipends.", "Day-one medical, dental, and vision insurance."]}
+              />
+            </FormSection>
+
+            <FormSection step={5} title="Publishing">
+              <Segmented
+                name="status"
+                defaultValue="published"
+                options={[
+                  { value: "published", label: "Publish now", hint: "Visible on the website immediately" },
+                  { value: "draft", label: "Save as draft", hint: "Hidden until you publish it" },
+                ]}
+              />
+              <Switch
+                name="isUrgent"
+                value="true"
+                icon={Zap}
+                label="Priority opening"
+                description="Adds a “Priority need” badge to the job card"
+              />
+            </FormSection>
+          </form>
+
+          {/* Live preview */}
+          <aside className="hidden bg-surface-2/50 px-6 py-7 sm:px-8 lg:col-span-5 lg:block">
+            <div className="sticky top-0">
+              <p className="eyebrow">Live preview</p>
+              <p className="mt-2 text-sm text-ink-3">How the card will appear on the jobs page.</p>
+              <div className="mt-5">
+                <JobPreview data={jobPreview} />
               </div>
-
-              <div>
-                <label className="block font-bold text-ink-2 mb-1">Qualifications (One per line)</label>
-                <textarea rows={3} name="qualifications" defaultValue={"Active state or compact nursing license.\nCurrent AHA BLS & ACLS certifications.\nMinimum 2 years bedside hospital experience."} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent font-mono" />
-              </div>
-
-              <div>
-                <label className="block font-bold text-ink-2 mb-1">Benefits (One per line)</label>
-                <textarea rows={2} name="benefits" defaultValue={"Tax-free travel stipends.\nDay-one medical, dental, and vision insurance."} className="w-full px-3 py-2 text-xs rounded border border-line-strong bg-transparent font-mono" />
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-line">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="isUrgent" value="true" className="rounded border-line-strong text-brand-ink" />
-                  <span className="font-semibold text-ink-2">Flag as Priority / Urgent Opening</span>
-                </label>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCreateJobModalOpen(false)}
-                    className="px-4 py-2 text-xs text-ink-2 hover:bg-surface-2 rounded cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={jobFormSubmitting}
-                    className="btn-accent px-5 py-2 text-xs font-semibold cursor-pointer"
-                  >
-                    {jobFormSubmitting ? "Creating Job..." : "Publish Job Opening"}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
+              <p className="mt-4 flex items-center gap-2 text-xs text-ink-3">
+                <span
+                  className={`h-2 w-2 rounded-full ${jobPreview.status === "draft" ? "bg-amber-500" : "bg-brand-bright"}`}
+                />
+                {jobPreview.status === "draft" ? "Will be saved as a draft (not public)" : "Will be published immediately"}
+              </p>
+            </div>
+          </aside>
         </div>
-      )}
+      </AdminModal>
 
       {/* ==================================================================== */}
       {/* ADD STAFF MODAL (SUPER ADMIN ONLY) */}
       {/* ==================================================================== */}
-      {addStaffModalOpen && isSuperAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spruce/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-surface rounded-2xl shadow-2xl border border-line max-w-xl w-full p-6 sm:p-8 my-8 relative">
-            <button
-              onClick={() => setAddStaffModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 text-ink-3 hover:text-ink rounded-lg hover:bg-surface-2 cursor-pointer"
-            >
-              <X className="w-5 h-5" />
+      <AdminModal
+        open={addStaffModalOpen && isSuperAdmin}
+        onClose={() => setAddStaffModalOpen(false)}
+        size="lg"
+        icon={UserPlus}
+        tone="accent"
+        title="Add a staff member"
+        description="Create a Staff Admin login and choose exactly what they can access."
+        footer={
+          <>
+            <button type="button" onClick={() => setAddStaffModalOpen(false)} className="btn-secondary">
+              Cancel
             </button>
-
-            <div className="flex items-center gap-2.5 mb-1">
-              <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
-                <Shield className="w-4 h-4" />
-              </div>
-              <h3 className="text-xl font-medium text-ink font-display">Add Staff Member</h3>
-            </div>
-            <p className="text-xs text-ink-3 mb-6">Create a Staff Administrator login and assign section permissions.</p>
-
-            {staffFormError && (
-              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{staffFormError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleCreateStaff} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-ink-2 mb-1">Staff Member Full Name *</label>
-                <input
+            <button type="submit" form="add-staff-form" disabled={staffFormSubmitting} className="btn-accent">
+              {staffFormSubmitting ? "Creating account…" : "Create staff account"}
+            </button>
+          </>
+        }
+      >
+        <form id="add-staff-form" onSubmit={handleCreateStaff} className="space-y-10 px-6 py-7 sm:px-8">
+          <FormError message={staffFormError} />
+          <FormSection step={1} title="Account details" description="They will sign in with this email and password.">
+            <Field label="Full name" htmlFor="staff-name" required>
+              <IconInput
+                icon={UserRound}
+                id="staff-name"
+                required
+                type="text"
+                value={newStaffName}
+                onChange={(e) => setNewStaffName(e.target.value)}
+                placeholder="e.g. Sarah Jenkins"
+                autoComplete="off"
+              />
+            </Field>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="Email address" htmlFor="staff-email" required hint="Used as their login username">
+                <IconInput
+                  icon={Mail}
+                  id="staff-email"
                   required
-                  type="text"
-                  value={newStaffName}
-                  onChange={(e) => setNewStaffName(e.target.value)}
-                  placeholder="e.g. Sarah Jenkins, RN Coordinator"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-line-strong bg-surface-2 text-ink focus:outline-none focus:ring-1 focus:ring-brand/30"
+                  type="email"
+                  value={newStaffEmail}
+                  onChange={(e) => setNewStaffEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  autoComplete="off"
                 />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">Email Address (Login Username) *</label>
-                  <input
-                    required
-                    type="email"
-                    value={newStaffEmail}
-                    onChange={(e) => setNewStaffEmail(e.target.value)}
-                    placeholder="s.jenkins@idealhealthcarestaffing.com"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-line-strong bg-surface-2 text-ink focus:outline-none focus:ring-1 focus:ring-brand/30"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-ink-2 mb-1">Initial Password *</label>
-                  <input
-                    required
-                    type="text"
-                    value={newStaffPassword}
-                    onChange={(e) => setNewStaffPassword(e.target.value)}
-                    placeholder="Min 8 characters"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-line-strong bg-surface-2 text-ink focus:outline-none focus:ring-1 focus:ring-brand/30 font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Permissions Matrix */}
-              <div className="pt-3 border-t border-line">
-                <label className="block font-bold text-ink mb-2 uppercase text-[11px] tracking-wider">
-                  Module Permissions Matrix
-                </label>
-
-                {/* Dashboard Overview */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-line mb-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={newStaffPermissions.dashboard}
-                      onChange={(e) => setNewStaffPermissions({ ...newStaffPermissions, dashboard: e.target.checked })}
-                      className="rounded text-brand-ink w-4 h-4"
-                    />
-                    <div>
-                      <span className="font-bold text-ink">Dashboard Overview</span>
-                      <p className="text-[10px] text-ink-3">Can view operational KPI summary metrics</p>
-                    </div>
-                  </label>
-                </div>
-
-                {/* Jobs Module */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-line mb-3 space-y-2">
-                  <span className="font-bold text-ink block">Jobs Management</span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.jobs.view}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          jobs: { ...newStaffPermissions.jobs, view: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>View Jobs</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.jobs.create}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          jobs: { ...newStaffPermissions.jobs, create: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>Create</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.jobs.edit}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          jobs: { ...newStaffPermissions.jobs, edit: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>Edit Status</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.jobs.delete}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          jobs: { ...newStaffPermissions.jobs, delete: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>Delete</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Candidate Applications */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-line mb-3 space-y-2">
-                  <span className="font-bold text-ink block">Candidate Applications</span>
-                  <div className="grid grid-cols-3 gap-2">
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.applications.view}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          applications: { ...newStaffPermissions.applications, view: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>View Files</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.applications.edit}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          applications: { ...newStaffPermissions.applications, edit: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>Edit Status</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.applications.delete}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          applications: { ...newStaffPermissions.applications, delete: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>Delete</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Facility Inquiries */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-line mb-3 space-y-2">
-                  <span className="font-bold text-ink block">Facility Contracts & Inquiries</span>
-                  <div className="grid grid-cols-3 gap-2">
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.facilities.view}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          facilities: { ...newStaffPermissions.facilities, view: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>View Orders</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.facilities.edit}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          facilities: { ...newStaffPermissions.facilities, edit: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>Edit Status</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newStaffPermissions.facilities.delete}
-                        onChange={(e) => setNewStaffPermissions({
-                          ...newStaffPermissions,
-                          facilities: { ...newStaffPermissions.facilities, delete: e.target.checked }
-                        })}
-                        className="rounded text-brand-ink"
-                      />
-                      <span>Delete</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-line">
-                <button
-                  type="button"
-                  onClick={() => setAddStaffModalOpen(false)}
-                  className="px-4 py-2 text-xs text-ink-2 hover:bg-surface-2 rounded-xl cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={staffFormSubmitting}
-                  className="btn-accent px-5 py-2 text-xs font-bold rounded-xl cursor-pointer shadow-md"
-                >
-                  {staffFormSubmitting ? "Creating Staff Account..." : "Create Staff Account"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+              </Field>
+              <Field label="Initial password" htmlFor="staff-password" required hint="Share it securely; they can be reset anytime">
+                <PasswordField id="staff-password" value={newStaffPassword} onChange={setNewStaffPassword} />
+              </Field>
+            </div>
+          </FormSection>
+          <FormSection step={2} title="Permissions" description="Tap to switch each action on or off.">
+            <PermissionsEditor value={newStaffPermissions} onChange={setNewStaffPermissions} />
+          </FormSection>
+        </form>
+      </AdminModal>
 
       {/* ==================================================================== */}
       {/* EDIT STAFF PERMISSIONS MODAL (SUPER ADMIN ONLY) */}
       {/* ==================================================================== */}
-      {editPermissionsStaff && editingPermissions && isSuperAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spruce/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-surface rounded-2xl shadow-2xl border border-line max-w-xl w-full p-6 sm:p-8 my-8 relative">
-            <button
-              onClick={() => setEditPermissionsStaff(null)}
-              className="absolute top-4 right-4 p-1.5 text-ink-3 hover:text-ink rounded-lg hover:bg-surface-2 cursor-pointer"
-            >
-              <X className="w-5 h-5" />
+      <AdminModal
+        open={Boolean(editPermissionsStaff && editingPermissions && isSuperAdmin)}
+        onClose={() => setEditPermissionsStaff(null)}
+        size="lg"
+        icon={KeyRound}
+        title={`Permissions · ${editPermissionsStaff?.name ?? ""}`}
+        description={editPermissionsStaff?.email}
+        footer={
+          <>
+            <button type="button" onClick={() => setEditPermissionsStaff(null)} className="btn-secondary">
+              Cancel
             </button>
-
-            <div className="flex items-center gap-2.5 mb-1">
-              <div className="w-8 h-8 rounded-lg bg-brand-soft text-brand-ink flex items-center justify-center">
-                <KeyRound className="w-4 h-4" />
-              </div>
-              <h3 className="text-xl font-medium text-ink font-display">
-                Permissions: {editPermissionsStaff.name}
-              </h3>
-            </div>
-            <p className="text-xs text-ink-3 mb-6 font-mono">{editPermissionsStaff.email}</p>
-
-            {staffFormError && (
-              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{staffFormError}</span>
-              </div>
-            )}
-
-            <div className="space-y-4 text-xs">
-              {/* Dashboard */}
-              <div className="p-3 rounded-xl bg-surface-2 border border-line">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={editingPermissions.dashboard}
-                    onChange={(e) => setEditingPermissions({ ...editingPermissions, dashboard: e.target.checked })}
-                    className="rounded text-brand-ink w-4 h-4"
-                  />
-                  <div>
-                    <span className="font-bold text-ink">Dashboard Overview</span>
-                    <p className="text-[10px] text-ink-3">Access to high-level operational counts</p>
-                  </div>
-                </label>
-              </div>
-
-              {/* Jobs */}
-              <div className="p-3 rounded-xl bg-surface-2 border border-line space-y-2">
-                <span className="font-bold text-ink block">Jobs Management</span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.jobs.view}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        jobs: { ...editingPermissions.jobs, view: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>View Jobs</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.jobs.create}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        jobs: { ...editingPermissions.jobs, create: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>Create</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.jobs.edit}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        jobs: { ...editingPermissions.jobs, edit: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>Edit Status</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.jobs.delete}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        jobs: { ...editingPermissions.jobs, delete: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>Delete</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Applications */}
-              <div className="p-3 rounded-xl bg-surface-2 border border-line space-y-2">
-                <span className="font-bold text-ink block">Candidate Applications</span>
-                <div className="grid grid-cols-3 gap-2">
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.applications.view}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        applications: { ...editingPermissions.applications, view: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>View Files</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.applications.edit}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        applications: { ...editingPermissions.applications, edit: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>Edit Status</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.applications.delete}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        applications: { ...editingPermissions.applications, delete: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>Delete</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Facilities */}
-              <div className="p-3 rounded-xl bg-surface-2 border border-line space-y-2">
-                <span className="font-bold text-ink block">Facility Contracts & Inquiries</span>
-                <div className="grid grid-cols-3 gap-2">
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.facilities.view}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        facilities: { ...editingPermissions.facilities, view: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>View Orders</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.facilities.edit}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        facilities: { ...editingPermissions.facilities, edit: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>Edit Status</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingPermissions.facilities.delete}
-                      onChange={(e) => setEditingPermissions({
-                        ...editingPermissions,
-                        facilities: { ...editingPermissions.facilities, delete: e.target.checked }
-                      })}
-                      className="rounded text-brand-ink"
-                    />
-                    <span>Delete</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-line">
-                <button
-                  type="button"
-                  onClick={() => setEditPermissionsStaff(null)}
-                  className="px-4 py-2 text-xs text-ink-2 hover:bg-surface-2 rounded-xl cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveStaffPermissions}
-                  disabled={staffFormSubmitting}
-                  className="btn-accent px-5 py-2 text-xs font-bold rounded-xl cursor-pointer shadow-md"
-                >
-                  {staffFormSubmitting ? "Saving Permissions..." : "Save Permissions"}
-                </button>
-              </div>
-            </div>
-          </div>
+            <button
+              type="button"
+              onClick={handleSaveStaffPermissions}
+              disabled={staffFormSubmitting}
+              className="btn-accent"
+            >
+              {staffFormSubmitting ? "Saving…" : "Save permissions"}
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-6 px-6 py-7 sm:px-8">
+          <FormError message={staffFormError} />
+          {editingPermissions && <PermissionsEditor value={editingPermissions} onChange={setEditingPermissions} />}
         </div>
-      )}
+      </AdminModal>
 
       {/* ==================================================================== */}
       {/* RESET STAFF PASSWORD MODAL (SUPER ADMIN ONLY) */}
       {/* ==================================================================== */}
-      {resetPasswordStaff && isSuperAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spruce/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-surface rounded-2xl shadow-2xl border border-line max-w-md w-full p-6 sm:p-8 my-8 relative">
-            <button
-              onClick={() => setResetPasswordStaff(null)}
-              className="absolute top-4 right-4 p-1.5 text-ink-3 hover:text-ink rounded-lg hover:bg-surface-2 cursor-pointer"
-            >
-              <X className="w-5 h-5" />
+      <AdminModal
+        open={Boolean(resetPasswordStaff && isSuperAdmin)}
+        onClose={() => setResetPasswordStaff(null)}
+        size="sm"
+        icon={KeyRound}
+        tone="amber"
+        title="Reset password"
+        description={
+          resetPasswordStaff ? (
+            <>
+              Set a new password for <strong className="font-semibold text-ink">{resetPasswordStaff.name}</strong>.
+            </>
+          ) : undefined
+        }
+        footer={
+          <>
+            <button type="button" onClick={() => setResetPasswordStaff(null)} className="btn-secondary">
+              Cancel
             </button>
-
-            <div className="flex items-center gap-2.5 mb-1">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
-                <KeyRound className="w-4 h-4" />
-              </div>
-              <h3 className="text-xl font-medium text-ink font-display">
-                Reset Staff Password
-              </h3>
-            </div>
-            <p className="text-xs text-ink-3 mb-6">
-              Assign a new password for <strong className="text-ink">{resetPasswordStaff.name}</strong> ({resetPasswordStaff.email}).
-            </p>
-
-            {staffFormError && (
-              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{staffFormError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleResetPassword} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-ink-2 mb-1">New Password (Min 8 characters) *</label>
-                <input
-                  required
-                  type="text"
-                  value={newPasswordVal}
-                  onChange={(e) => setNewPasswordVal(e.target.value)}
-                  placeholder="Enter new password..."
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-line-strong bg-surface-2 text-ink focus:outline-none focus:ring-1 focus:ring-brand/30 font-mono"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-line">
-                <button
-                  type="button"
-                  onClick={() => setResetPasswordStaff(null)}
-                  className="px-4 py-2 text-xs text-ink-2 hover:bg-surface-2 rounded-xl cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={staffFormSubmitting}
-                  className="btn-accent px-5 py-2 text-xs font-bold rounded-xl cursor-pointer shadow-md"
-                >
-                  {staffFormSubmitting ? "Updating Password..." : "Update Password"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <button type="submit" form="reset-password-form" disabled={staffFormSubmitting} className="btn-accent">
+              {staffFormSubmitting ? "Updating…" : "Update password"}
+            </button>
+          </>
+        }
+      >
+        <form id="reset-password-form" onSubmit={handleResetPassword} className="space-y-5 px-6 py-7 sm:px-8">
+          <FormError message={staffFormError} />
+          <Field label="New password" htmlFor="reset-password" required hint={resetPasswordStaff?.email}>
+            <PasswordField id="reset-password" value={newPasswordVal} onChange={setNewPasswordVal} />
+          </Field>
+        </form>
+      </AdminModal>
 
     </div>
   );
