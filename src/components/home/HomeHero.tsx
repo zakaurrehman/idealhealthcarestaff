@@ -88,11 +88,11 @@ export default function HomeHero() {
             <motion.div className="absolute inset-x-0 -inset-y-[4%]" style={{ y: imageY }}>
               <Image
                 src="/images/hero-nurse.jpg"
-                alt="Smiling registered nurse in navy scrubs with arms crossed"
+                alt="Smiling registered nurse with long blonde hair in black scrubs"
                 fill
                 priority
                 sizes="(min-width: 1280px) 500px, (min-width: 1024px) 40vw, 416px"
-                className="object-cover object-[55%_30%]"
+                className="object-cover object-[50%_25%]"
               />
             </motion.div>
           </div>

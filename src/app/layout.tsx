@@ -50,7 +50,7 @@ export const metadata: Metadata = {
       "The Right Professionals. The Right Place. The Right Time.™ Verified travel nursing and healthcare facility staffing solutions.",
     type: "website",
     locale: "en_US",
-    images: [{ url: "/images/hero-nurse.jpg", width: 1400, height: 1479 }],
+    images: [{ url: "/images/hero-nurse.jpg", width: 1600, height: 2000 }],
   },
   robots: {
     index: true,
