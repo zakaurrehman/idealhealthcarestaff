@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Building2, Check, Stethoscope } from "lucide-react";
+import { ImageReveal } from "@/components/motion/Reveal";
 
 const PANELS = [
   {
@@ -118,27 +119,29 @@ export default function AudienceTabs() {
               inert={!selected}
               aria-hidden={!selected}
               initial={false}
-              animate={{ opacity: selected ? 1 : 0, y: selected ? 0 : 12 }}
+              animate={{ opacity: selected ? 1 : 0, y: selected ? 0 : 24 }}
               transition={{ duration: 0.5, ease: EASE }}
               className={`col-start-1 row-start-1 grid overflow-hidden rounded-[2rem] border border-line bg-surface lg:grid-cols-12 ${
                 selected ? "z-10" : "pointer-events-none z-0"
               }`}
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-surface-2 lg:col-span-5 lg:aspect-auto lg:min-h-[34rem]">
-                <motion.div
-                  className="absolute inset-0"
-                  initial={false}
-                  animate={{ scale: selected ? 1 : 1.06 }}
-                  transition={{ duration: 0.9, ease: EASE }}
-                >
-                  <Image
-                    src={p.image.src}
-                    alt={p.image.alt}
-                    fill
-                    sizes="(min-width: 1024px) 500px, 100vw"
-                    className={`object-cover ${p.image.position}`}
-                  />
-                </motion.div>
+                <ImageReveal className="absolute inset-0" delay={0.15}>
+                  <motion.div
+                    className="absolute inset-0"
+                    initial={false}
+                    animate={{ scale: selected ? 1 : 1.12 }}
+                    transition={{ duration: 1, ease: EASE }}
+                  >
+                    <Image
+                      src={p.image.src}
+                      alt={p.image.alt}
+                      fill
+                      sizes="(min-width: 1024px) 500px, 100vw"
+                      className={`object-cover ${p.image.position}`}
+                    />
+                  </motion.div>
+                </ImageReveal>
               </div>
 
               <div className="flex flex-col justify-center p-7 sm:p-10 lg:col-span-7 lg:p-14">

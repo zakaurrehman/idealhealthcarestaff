@@ -26,6 +26,13 @@ export default function ProcessSteps({ steps, onDark = false }: { steps: Process
           viewport={{ once: true, margin: "0px 0px -20% 0px" }}
           transition={{ duration: 1.6, ease: EASE }}
         />
+        <span
+          className={`travel-dot absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full ${
+            onDark
+              ? "bg-coral-300 shadow-[0_0_14px_5px_rgba(243,162,132,0.55)]"
+              : "bg-accent shadow-[0_0_14px_5px_rgb(var(--accent)/0.4)]"
+          }`}
+        />
       </div>
 
       <ol className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
@@ -34,20 +41,26 @@ export default function ProcessSteps({ steps, onDark = false }: { steps: Process
             key={step.title}
             data-reveal=""
             className="relative"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "0px 0px -15% 0px" }}
-            transition={{ duration: 0.7, delay: 0.15 + i * 0.15, ease: EASE }}
+            transition={{ duration: 0.8, delay: 0.15 + i * 0.15, ease: EASE }}
           >
-            <span
+            <motion.span
+              data-reveal=""
               className={`relative z-10 flex h-14 w-14 items-center justify-center rounded-full font-display text-xl font-medium ring-[10px] ${
                 onDark
                   ? "bg-spruce-700 text-teal-200 ring-spruce"
                   : "border border-line bg-surface text-brand-ink ring-surface"
               }`}
+              initial={{ scale: 0.3, rotate: -90 }}
+              whileInView={{ scale: 1, rotate: 0 }}
+              whileHover={{ scale: 1.12 }}
+              viewport={{ once: true, margin: "0px 0px -15% 0px" }}
+              transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.25 + i * 0.15 }}
             >
               {String(i + 1).padStart(2, "0")}
-            </span>
+            </motion.span>
             <h3 className={`mt-7 font-display text-xl font-medium ${onDark ? "text-white" : "text-ink"}`}>
               {step.title}
             </h3>

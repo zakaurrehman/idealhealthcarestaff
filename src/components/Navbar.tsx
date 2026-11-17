@@ -21,6 +21,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hiddenOnScroll, setHiddenOnScroll] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const pathname = usePathname();
   const closeAlerts = useCallback(() => setAlertModalOpen(false), []);
@@ -30,8 +31,16 @@ export default function Navbar() {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  // Slide away while reading down the page, return on any upward scroll.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 8);
+      if (Math.abs(y - lastY) < 6) return;
+      setHiddenOnScroll(y > lastY && y > 320);
+      lastY = y;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -54,7 +63,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4">
+      <header
+        className={`sticky top-0 z-50 px-3 pt-3 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] focus-within:translate-y-0 sm:px-4 ${
+          hiddenOnScroll && !mobileMenuOpen ? "-translate-y-[130%]" : ""
+        }`}
+      >
         <div className="mx-auto max-w-7xl">
           {/* Floating pill bar (21st.dev-style navigation) */}
           <div

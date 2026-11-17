@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ArrowUpRight, Check, HeartHandshake } from "lucide-react";
 import { AFFILIATE } from "@/lib/constants";
-import { Reveal } from "@/components/motion/Reveal";
+import { ImageReveal, Reveal } from "@/components/motion/Reveal";
 
 const CARE_AREAS = [
   "Home-based & transitional care",
@@ -24,14 +24,16 @@ export function PartnerAffiliationFeature() {
               rel="noopener noreferrer"
               className="group block overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-line transition-shadow hover:shadow-lift"
             >
-              <Image
-                src={AFFILIATE.image}
-                alt={`Ideal Healthcare Staffing — proudly affiliated with ${AFFILIATE.name}®, ${AFFILIATE.tagline.toLowerCase()}`}
-                width={1536}
-                height={1024}
-                sizes="(min-width: 1024px) 560px, 100vw"
-                className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.015]"
-              />
+              <ImageReveal cover={false} delay={0.2}>
+                <Image
+                  src={AFFILIATE.image}
+                  alt={`Ideal Healthcare Staffing — proudly affiliated with ${AFFILIATE.name}®, ${AFFILIATE.tagline.toLowerCase()}`}
+                  width={1536}
+                  height={1024}
+                  sizes="(min-width: 1024px) 560px, 100vw"
+                  className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.03]"
+                />
+              </ImageReveal>
             </a>
           </div>
 

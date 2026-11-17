@@ -6,7 +6,7 @@ import { ArrowRight, ChevronRight, Phone, SearchX } from "lucide-react";
 import { getJobs } from "@/lib/db";
 import JobCard from "@/components/JobCard";
 import JobFilters from "@/components/JobFilters";
-import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
+import { ImageReveal, Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { COMPANY_INFO } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -92,14 +92,18 @@ export default async function JobsPage(props: JobsPageProps) {
             >
               <div className="absolute -bottom-4 -right-4 left-8 top-8 rounded-[2rem] bg-brand-soft" aria-hidden />
               <div className="relative aspect-[5/4] overflow-hidden rounded-[2rem] shadow-lift">
-                <Image
-                  src="/images/clinician-desk.jpg"
-                  alt="Clinician in a white coat with a stethoscope at her desk"
-                  fill
-                  priority
-                  sizes="480px"
-                  className="object-cover object-[50%_25%]"
-                />
+                <div className="unveil absolute inset-0" style={{ "--delay": "0.3s" } as React.CSSProperties}>
+                  <div className="zoom-settle absolute inset-0" style={{ "--delay": "0.3s" } as React.CSSProperties}>
+                    <Image
+                      src="/images/clinician-desk.jpg"
+                      alt="Clinician in a white coat with a stethoscope at her desk"
+                      fill
+                      priority
+                      sizes="480px"
+                      className="object-cover object-[50%_25%]"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -156,14 +160,16 @@ export default async function JobsPage(props: JobsPageProps) {
         {/* Recruiter banner — image and copy side by side, never overlapping */}
         <Reveal className="mt-20 overflow-hidden rounded-[2.25rem] bg-spruce text-white">
           <div className="grid lg:grid-cols-12">
-            <div className="relative aspect-[16/10] lg:col-span-5 lg:aspect-auto">
-              <Image
-                src="/images/care-coordinator.jpg"
-                alt="Smiling professional with glasses in a bright modern office"
-                fill
-                sizes="(min-width: 1024px) 520px, 100vw"
-                className="object-cover object-[62%_30%]"
-              />
+            <div className="relative aspect-[16/10] overflow-hidden lg:col-span-5 lg:aspect-auto">
+              <ImageReveal className="absolute inset-0" delay={0.15}>
+                <Image
+                  src="/images/care-coordinator.jpg"
+                  alt="Smiling professional with glasses in a bright modern office"
+                  fill
+                  sizes="(min-width: 1024px) 520px, 100vw"
+                  className="object-cover object-[62%_30%]"
+                />
+              </ImageReveal>
             </div>
             <div className="relative p-8 sm:p-12 lg:col-span-7 lg:p-14">
               <div className="absolute inset-0 bg-dots-light" aria-hidden />
@@ -177,7 +183,7 @@ export default async function JobsPage(props: JobsPageProps) {
                 response units, and upcoming contract blocks across leading medical networks.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/apply/general" className="btn-light group">
+                <Link href="/apply/general" className="btn-light btn-shine group">
                   Submit a general profile
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>

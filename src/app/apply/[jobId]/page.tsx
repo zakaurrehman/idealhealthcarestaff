@@ -5,6 +5,7 @@ import { getJobById } from "@/lib/db";
 import ApplicationForm from "@/components/ApplicationForm";
 import { ArrowLeft, Briefcase, Clock, MapPin, Phone, ShieldCheck, UserCheck, Wallet } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
+import { ImageReveal } from "@/components/motion/Reveal";
 
 interface ApplyPageProps {
   params: Promise<{ jobId: string }>;
@@ -82,14 +83,16 @@ export default async function ApplyPage(props: ApplyPageProps) {
 
           <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-line bg-surface text-sm text-ink-2">
             {/* Friendly face, desktop only — on mobile the form stays close to the top */}
-            <div className="relative hidden aspect-[4/3] bg-surface-2 lg:block">
-              <Image
-                src="/images/recruiter-call.jpg"
-                alt="Smiling recruiter on a phone call at her desk"
-                fill
-                sizes="400px"
-                className="object-cover object-[50%_30%]"
-              />
+            <div className="relative hidden aspect-[4/3] overflow-hidden bg-surface-2 lg:block">
+              <ImageReveal className="absolute inset-0" delay={0.2}>
+                <Image
+                  src="/images/recruiter-call.jpg"
+                  alt="Smiling recruiter on a phone call at her desk"
+                  fill
+                  sizes="400px"
+                  className="object-cover object-[50%_30%]"
+                />
+              </ImageReveal>
             </div>
             <div className="space-y-4 p-6">
             <p className="flex gap-3">

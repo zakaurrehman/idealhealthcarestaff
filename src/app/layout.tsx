@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import MotionProvider from "@/components/motion/MotionProvider";
+import ScrollProgress from "@/components/motion/ScrollProgress";
 
 // Body & UI: friendly, highly legible humanist sans
 const figtree = Figtree({
@@ -101,6 +102,7 @@ export default function RootLayout({
         </a>
         <ThemeProvider>
           <MotionProvider>
+            <ScrollProgress />
             <Navbar />
             <main id="main" className="flex-1">
               {children}

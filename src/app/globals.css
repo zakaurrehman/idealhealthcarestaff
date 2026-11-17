@@ -302,26 +302,262 @@
   animation-delay: var(--delay, 0s);
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Page entrance — replays on every route change via app/template.tsx */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.page-enter {
+  animation: page-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Headline words slide up from behind a mask; padding keeps italics and descenders unclipped */
+@keyframes word-up {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: none;
+  }
+}
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding: 0.06em 0.08em 0.16em 0;
+  margin: -0.06em -0.08em -0.16em 0;
+}
+.word-up {
+  display: inline-block;
+  animation: word-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Photo uncovers bottom-to-top while settling from a slight zoom */
+@keyframes unveil {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.unveil {
+  animation: unveil 1.4s cubic-bezier(0.77, 0, 0.18, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes zoom-settle {
+  from {
+    transform: scale(1.25);
+  }
+  to {
+    transform: none;
+  }
+}
+.zoom-settle {
+  animation: zoom-settle 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Ambient loops */
+@keyframes drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(8%, -10%) scale(1.15);
+  }
+  66% {
+    transform: translate(-6%, 8%) scale(0.92);
+  }
+}
+@keyframes drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-12%, 10%) scale(1.18);
+  }
+}
+.drift-a {
+  animation: drift-a 16s ease-in-out infinite;
+}
+.drift-b {
+  animation: drift-b 20s ease-in-out infinite;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.float-y {
+  animation: float-y 5.5s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin-slow {
+  animation: spin-slow 24s linear infinite;
+}
+
+@keyframes heartbeat {
+  0%,
+  60%,
+  100% {
+    transform: scale(1);
+  }
+  12% {
+    transform: scale(1.22);
+  }
+  24% {
+    transform: scale(1);
+  }
+  36% {
+    transform: scale(1.14);
+  }
+}
+.heartbeat {
+  animation: heartbeat 1.6s ease-in-out infinite;
+}
+
+/* Glowing dot that travels along the process connector */
+@keyframes travel {
+  from {
+    left: 0%;
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  to {
+    left: 100%;
+    opacity: 0;
+  }
+}
+.travel-dot {
+  animation: travel 4.5s cubic-bezier(0.65, 0, 0.35, 1) 1.8s infinite both;
+}
+
+/* Bright blip racing along the ECG line (path uses pathLength="1") */
+@keyframes ecg-run {
+  from {
+    stroke-dashoffset: 0.14;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+.ecg-run {
+  stroke-dasharray: 0.14 1.2;
+  animation: ecg-run 3.4s linear 2.4s infinite both;
+}
+
+/* Light sweep across solid buttons — on hover, or on a loop with .btn-shine */
+@keyframes shine {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+@keyframes shine-loop {
+  0% {
+    transform: translateX(-120%);
+  }
+  30%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+.btn-accent,
+.btn-light {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-accent::after,
+.btn-light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.32) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+.btn-light::after {
+  background: linear-gradient(110deg, transparent 30%, rgb(14 110 120 / 0.14) 50%, transparent 70%);
+}
+.btn-accent:hover::after,
+.btn-light:hover::after {
+  animation: shine 0.9s ease;
+}
+.btn-shine::after {
+  animation: shine-loop 4s ease-in-out 2s infinite;
+}
+
+/* FAQ accordions open smoothly where the browser supports it */
+:root {
+  interpolate-size: allow-keywords;
+}
+details::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    block-size 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    content-visibility 0.45s allow-discrete;
+}
+details[open]::details-content {
+  block-size: auto;
+}
+
 /* Marquee pauses when the visitor hovers or focuses within it */
 .marquee-track:hover,
 .marquee-track:focus-within {
   animation-play-state: paused;
 }
 
-/* Respect reduced-motion preferences everywhere */
+/*
+ * Reduced motion: nothing moves, loops stop, but content still fades in
+ * so the site never feels broken or abrupt.
+ */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   [data-reveal] {
-    opacity: 1 !important;
     transform: none !important;
   }
-  .rise {
-    animation: none !important;
-  }
-  .marquee-track {
-    animation: none !important;
+  [data-clip-reveal] {
+    clip-path: none !important;
   }
   *,
   ::before,
@@ -329,6 +565,28 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .marquee-track,
+  .drift-a,
+  .drift-b,
+  .float-y,
+  .spin-slow,
+  .heartbeat,
+  .zoom-settle,
+  .btn-accent::after,
+  .btn-light::after {
+    animation: none !important;
+  }
+  .travel-dot,
+  .ecg-run {
+    display: none;
+  }
+  .rise,
+  .page-enter,
+  .word-up,
+  .unveil {
+    animation-name: fade-in !important;
+    animation-duration: 0.6s !important;
   }
 }
 

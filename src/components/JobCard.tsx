@@ -15,7 +15,7 @@ export default function JobCard({ job }: JobCardProps) {
         <span className="badge-neutral">{job.specialty}</span>
         {job.isUrgent && (
           <span className="badge-urgent ml-auto">
-            <Zap className="h-3.5 w-3.5" aria-hidden />
+            <Zap className="h-3.5 w-3.5 animate-pulse" aria-hidden />
             Priority need
           </span>
         )}

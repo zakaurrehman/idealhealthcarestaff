@@ -18,7 +18,8 @@ import { PartnerAffiliationStrip } from "@/components/PartnerAffiliation";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import ProcessSteps from "@/components/ui/ProcessSteps";
-import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
+import { ImageReveal, Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
+import PulseLine from "@/components/ui/PulseLine";
 import { COMPANY_INFO } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -114,13 +115,14 @@ export default function FacilitiesPage() {
        <div className="relative mx-auto max-w-[90rem] overflow-hidden rounded-[2.25rem] bg-spruce text-white">
         <div className="absolute inset-0 bg-dots-light" aria-hidden />
         <div
-          className="absolute -left-32 top-1/3 h-[28rem] w-[28rem] rounded-full bg-teal-400/15 blur-[120px]"
+          className="drift-a absolute -left-32 top-1/3 h-[28rem] w-[28rem] rounded-full bg-teal-400/20 blur-[120px]"
           aria-hidden
         />
         <div
-          className="absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-coral-400/10 blur-[110px]"
+          className="drift-b absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-coral-400/15 blur-[110px]"
           aria-hidden
         />
+        <PulseLine className="absolute inset-x-0 bottom-2 hidden h-14 w-full text-white opacity-50 sm:block" />
 
         <div className="container-page relative grid items-center gap-14 py-16 sm:py-20 lg:grid-cols-12 lg:gap-12 lg:py-24">
           <div className="lg:col-span-6">
@@ -142,7 +144,7 @@ export default function FacilitiesPage() {
               className="rise mt-9 flex flex-col gap-3 sm:flex-row"
               style={{ "--delay": "0.4s" } as React.CSSProperties}
             >
-              <a href="#inquiry-form" className="btn-light btn-lg group">
+              <a href="#inquiry-form" className="btn-light btn-lg btn-shine group">
                 Request Staffing Coverage
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
@@ -176,14 +178,18 @@ export default function FacilitiesPage() {
             style={{ "--delay": "0.2s", "--rise": "32px" } as React.CSSProperties}
           >
             <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] ring-1 ring-white/10">
-              <Image
-                src="/images/nurse-clinical-care.jpg"
-                alt="Nurse in red scrubs taking a patient's blood pressure in a bright clinic room"
-                fill
-                priority
-                sizes="(min-width: 1024px) 600px, 100vw"
-                className="object-cover object-[50%_35%]"
-              />
+              <div className="unveil absolute inset-0" style={{ "--delay": "0.3s" } as React.CSSProperties}>
+                <div className="zoom-settle absolute inset-0" style={{ "--delay": "0.3s" } as React.CSSProperties}>
+                  <Image
+                    src="/images/nurse-clinical-care.jpg"
+                    alt="Nurse in red scrubs taking a patient's blood pressure in a bright clinic room"
+                    fill
+                    priority
+                    sizes="(min-width: 1024px) 600px, 100vw"
+                    className="object-cover object-[50%_35%]"
+                  />
+                </div>
+              </div>
             </div>
             <div className="mt-4 flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-coral-400/15 text-coral-300">
@@ -216,8 +222,8 @@ export default function FacilitiesPage() {
           <Stagger className="mt-14 grid gap-6 lg:grid-cols-3" as="ul">
             {SERVICES.map(({ icon: Icon, ...svc }) => (
               <StaggerItem as="li" key={svc.title} className="h-full">
-                <SpotlightCard className="flex h-full flex-col rounded-[1.75rem] border border-line bg-surface p-7 transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-brand/35 sm:p-8">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-soft text-brand-ink">
+                <SpotlightCard className="group flex h-full flex-col rounded-[1.75rem] border border-line bg-surface p-7 transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-brand/35 sm:p-8">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-soft text-brand-ink transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-[10deg] group-hover:scale-[1.18]">
                     <Icon className="h-6 w-6" aria-hidden />
                   </span>
                   <h3 className="mt-6 font-display text-[1.375rem] font-medium text-ink">{svc.title}</h3>
@@ -293,14 +299,16 @@ export default function FacilitiesPage() {
                 </ol>
 
                 <div className="overflow-hidden rounded-3xl border border-line bg-surface">
-                  <div className="relative aspect-[16/9] bg-surface-2">
-                    <Image
-                      src="/images/coordinator-phone.jpg"
-                      alt="Smiling staffing coordinator taking a call at her desk"
-                      fill
-                      sizes="(min-width: 1024px) 420px, 100vw"
-                      className="object-cover object-[45%_25%]"
-                    />
+                  <div className="relative aspect-[16/9] overflow-hidden bg-surface-2">
+                    <ImageReveal className="absolute inset-0" delay={0.2}>
+                      <Image
+                        src="/images/coordinator-phone.jpg"
+                        alt="Smiling staffing coordinator taking a call at her desk"
+                        fill
+                        sizes="(min-width: 1024px) 420px, 100vw"
+                        className="object-cover object-[45%_25%]"
+                      />
+                    </ImageReveal>
                   </div>
                   <div className="p-6">
                   <p className="text-sm text-ink-3">Prefer to speak with a coordinator?</p>

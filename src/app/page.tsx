@@ -24,7 +24,8 @@ import ProcessSteps from "@/components/ui/ProcessSteps";
 import CtaBand from "@/components/ui/CtaBand";
 import { PartnerAffiliationFeature } from "@/components/PartnerAffiliation";
 import CountUp from "@/components/motion/CountUp";
-import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
+import { PopIn, Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
+import PulseLine from "@/components/ui/PulseLine";
 import { SPECIALTIES, US_STATES } from "@/lib/constants";
 
 export const revalidate = 60;
@@ -302,13 +303,13 @@ export default async function HomePage() {
                   <Link href={card.href} className="group flex h-full flex-col p-7 sm:p-8">
                     <div className="flex items-start justify-between">
                       <span
-                        className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
+                        className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-[10deg] group-hover:scale-[1.18] ${
                           i % 3 === 1 ? "bg-accent-soft text-accent-ink" : "bg-brand-soft text-brand-ink"
                         }`}
                       >
                         <Icon className="h-6 w-6" aria-hidden />
                       </span>
-                      <span className="font-display text-sm text-ink-3">0{i + 1}</span>
+                      <span className="font-display text-sm text-ink-3 transition-colors duration-300 group-hover:text-accent-ink">0{i + 1}</span>
                     </div>
                     <h3 className="mt-7 font-display text-[1.375rem] font-medium text-ink">{card.title}</h3>
                     <p className="mt-2.5 flex-1 text-[0.9375rem] leading-relaxed text-ink-3">{card.description}</p>
@@ -330,7 +331,9 @@ export default async function HomePage() {
       <section className="px-3 sm:px-4">
         <div className="relative mx-auto max-w-[90rem] overflow-hidden rounded-[2.25rem] bg-spruce py-20 sm:py-24 lg:py-28">
           <div className="absolute inset-0 bg-dots-light" aria-hidden />
-          <div className="absolute -left-24 top-0 h-80 w-80 rounded-full bg-teal-400/15 blur-[110px]" aria-hidden />
+          <div className="drift-a absolute -left-24 top-0 h-80 w-80 rounded-full bg-teal-400/20 blur-[110px]" aria-hidden />
+          <div className="drift-b absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-coral-400/10 blur-[110px]" aria-hidden />
+          <PulseLine className="absolute inset-x-0 bottom-3 h-16 w-full text-white opacity-60" />
           <div className="container-page relative">
             <SectionHeading
               onDark
@@ -393,10 +396,10 @@ export default async function HomePage() {
                 </div>
                 <Stagger as="ul" className="divide-y divide-line" stagger={0.09}>
                   {CREDENTIAL_FILE.map((item) => (
-                    <StaggerItem as="li" key={item.label} className="flex items-center gap-4 py-4">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-brand-on">
+                    <StaggerItem as="li" variant="left" key={item.label} className="flex items-center gap-4 py-4">
+                      <PopIn className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-brand-on">
                         <Check className="h-4 w-4" strokeWidth={3} aria-hidden />
-                      </span>
+                      </PopIn>
                       <span className="min-w-0 flex-1">
                         <span className="block font-semibold text-ink">{item.label}</span>
                         <span className="block text-sm text-ink-3">{item.detail}</span>
